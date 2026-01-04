@@ -37,7 +37,7 @@ Interfaz de usuario moderna y responsiva construida con React para la gestión d
    ```env
    VITE_SUPABASE_URL=tu_supabase_url
    VITE_SUPABASE_ANON_KEY=tu_supabase_anon_key
-   VITE_API_URL=http://localhost:3000/api
+   VITE_API_URL=https://cronch-server.onrender.com/api
    ```
 4. Iniciar servidor de desarrollo:
    ```bash
