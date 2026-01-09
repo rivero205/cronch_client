@@ -1,0 +1,24 @@
+name: Send Daily Reminders
+
+on:
+  schedule:
+    # Cron runs at 9 PM UTC = 4 PM Colombia (UTC-5)
+    - cron: '0 21 * * *'
+  
+  # Permite ejecutar manualmente para pruebas
+  workflow_dispatch:
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Trigger Push Notifications
+        run: |
+          curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/send-daily-reminders" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json"
+      
+      - name: Log Result
+        if: always()
+        run: echo "Daily reminder notifications sent at $(date)"
