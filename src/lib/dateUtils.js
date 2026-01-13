@@ -15,11 +15,8 @@ export const parseLocalDate = (dateString) => {
         return new Date(dateString);
     }
     
-    // Otherwise, split the date string to avoid timezone conversion
-    const [year, month, day] = dateString.split('-').map(Number);
-    
-    // Create date in local timezone (month is 0-indexed)
-    return new Date(year, month - 1, day);
+    // Add 'T00:00:00' to treat the date as local
+    return new Date(`${dateString}T00:00:00`);
 };
 
 /**
