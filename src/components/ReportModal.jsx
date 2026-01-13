@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { X, Calendar, Download, Loader2, FileText, Play } from 'lucide-react';
 import { api } from '../api';
 import { useToast } from '../contexts/ToastContext';
+import { getTodayLocalDate, parseLocalDate, formatLocalDate } from '../lib/dateUtils';
 
 const ReportModal = ({ report, onClose, selectedBusinessId }) => {
     const { toast } = useToast();
@@ -18,8 +19,7 @@ const ReportModal = ({ report, onClose, selectedBusinessId }) => {
 
     // Date Input State
     const [dateValue, setDateValue] = useState(() => {
-        const d = new Date();
-        return d.toISOString().split('T')[0]; // Default to today
+        return getTodayLocalDate(); // Default to today
     });
 
     // We calculate the actual start/end range whenever period or dateValue changes
@@ -43,7 +43,7 @@ const ReportModal = ({ report, onClose, selectedBusinessId }) => {
         let end = '';
 
         if (period === 'week') {
-            const d = new Date(dateValue);
+            const d = parseLocalDate(dateValue);
             const day = d.getDay();
             const diff = d.getDate() - day + (day === 0 ? -6 : 1);
             const monday = new Date(d);
@@ -51,15 +51,23 @@ const ReportModal = ({ report, onClose, selectedBusinessId }) => {
             const sunday = new Date(monday);
             sunday.setDate(monday.getDate() + 6);
 
-            start = monday.toISOString().split('T')[0];
-            end = sunday.toISOString().split('T')[0];
+            // Format dates without timezone conversion
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            start = formatDate(monday);
+            end = formatDate(sunday);
 
         } else if (period === 'month') {
             let year, month;
             if (dateValue.length === 7) {
                 [year, month] = dateValue.split('-');
             } else {
-                const d = new Date(dateValue);
+                const d = parseLocalDate(dateValue);
                 year = d.getFullYear();
                 month = d.getMonth() + 1;
             }
@@ -178,7 +186,7 @@ const ReportModal = ({ report, onClose, selectedBusinessId }) => {
                         <div className="grid grid-cols-2 gap-3 text-sm">
                             <div>
                                 <p className="text-gray-600">Período:</p>
-                                <p className="font-semibold">{reportData.period?.start} - {reportData.period?.end}</p>
+                                <p className="font-semibold">{formatLocalDate(reportData.period?.start)} - {formatLocalDate(reportData.period?.end)}</p>
                             </div>
                             <div>
                                 <p className="text-gray-600">Total Ventas:</p>
@@ -245,7 +253,7 @@ const ReportModal = ({ report, onClose, selectedBusinessId }) => {
                 return (
                     <div className="bg-purple-50 p-4 rounded-xl space-y-3 max-h-96 overflow-y-auto animate-fadeIn">
                         <h5 className="font-bold text-brand-coffee">Rentabilidad por Producto</h5>
-                        <p className="text-xs text-gray-600">Período: {reportData.period?.start} - {reportData.period?.end}</p>
+                        <p className="text-xs text-gray-600">Período: {formatLocalDate(reportData.period?.start)} - {formatLocalDate(reportData.period?.end)}</p>
                         {reportData.products?.map(product => (
                             <div key={product.id} className="bg-white p-3 rounded-lg border border-purple-200">
                                 <h6 className="font-bold text-brand-coffee mb-2">{product.name}</h6>
@@ -278,10 +286,10 @@ const ReportModal = ({ report, onClose, selectedBusinessId }) => {
                 return (
                     <div className="bg-orange-50 p-4 rounded-xl space-y-3 max-h-96 overflow-y-auto animate-fadeIn">
                         <h5 className="font-bold text-brand-coffee">Tendencia Diaria</h5>
-                        <p className="text-xs text-gray-600">Período: {reportData.period?.start} - {reportData.period?.end}</p>
+                        <p className="text-xs text-gray-600">Período: {formatLocalDate(reportData.period?.start)} - {formatLocalDate(reportData.period?.end)}</p>
                         {reportData.dailyData?.map((day, idx) => (
                             <div key={idx} className="bg-white p-3 rounded-lg border border-orange-200">
-                                <h6 className="font-bold text-brand-coffee mb-2">{day.date}</h6>
+                                <h6 className="font-bold text-brand-coffee mb-2">{formatLocalDate(day.date)}</h6>
                                 <div className="grid grid-cols-3 gap-2 text-sm">
                                     <div>
                                         <p className="text-gray-600">Ventas:</p>
@@ -316,7 +324,7 @@ const ReportModal = ({ report, onClose, selectedBusinessId }) => {
                         <h5 className="font-bold text-brand-coffee flex items-center gap-2">
                             <span className="text-2xl">🏆</span> Producto Más Rentable
                         </h5>
-                        <p className="text-xs text-gray-600">Período: {reportData.period?.start} - {reportData.period?.end}</p>
+                        <p className="text-xs text-gray-600">Período: {formatLocalDate(reportData.period?.start)} - {formatLocalDate(reportData.period?.end)}</p>
                         <div className="bg-white p-4 rounded-lg border-2 border-yellow-400">
                             <h6 className="font-bold text-xl text-brand-coffee mb-3">{reportData.product.name}</h6>
                             <div className="grid grid-cols-2 gap-3 text-sm">

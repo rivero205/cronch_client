@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { api } from '../api';
+import { parseLocalDate } from '../lib/dateUtils';
 import {
     TrendingUp,
     DollarSign,
@@ -53,10 +54,10 @@ const Dashboard = () => {
     const getPeriodLabel = () => {
         const { date, startDate, endDate } = getDateRange();
         if (date) {
-            return format(new Date(date), "d 'de' MMMM, yyyy", { locale: es });
+            return format(parseLocalDate(date), "d 'de' MMMM, yyyy", { locale: es });
         }
         if (startDate && endDate) {
-            return `${format(new Date(startDate), "d MMM", { locale: es })} - ${format(new Date(endDate), "d MMM, yyyy", { locale: es })}`;
+            return `${format(parseLocalDate(startDate), "d MMM", { locale: es })} - ${format(parseLocalDate(endDate), "d MMM, yyyy", { locale: es })}`;
         }
         return '';
     };

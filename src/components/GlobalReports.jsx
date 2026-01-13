@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../api';
 import { useToast } from '../contexts/ToastContext';
+import { getTodayLocalDate } from '../lib/dateUtils';
 import {
     TrendingUp,
     DollarSign,
@@ -20,12 +21,17 @@ const GlobalReports = () => {
 
     // Default to current month
     const [startDate, setStartDate] = useState(() => {
-        const date = new Date();
-        return new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split('T')[0];
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        return `${year}-${month}-01`;
     });
     const [endDate, setEndDate] = useState(() => {
-        const date = new Date();
-        return new Date(date.getFullYear(), date.getMonth() + 1, 0).toISOString().split('T')[0];
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth() + 1;
+        const lastDay = new Date(year, month, 0).getDate();
+        return `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
     });
 
     useEffect(() => {

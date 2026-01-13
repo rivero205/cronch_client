@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api';
 import { Plus, Factory, Pencil, Trash2 } from 'lucide-react';
-import { format } from 'date-fns';
 import { useToast } from '../contexts/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
+import { getTodayLocalDate, formatLocalDate, toInputDateFormat } from '../lib/dateUtils';
 
 const Production = () => {
     const [production, setProduction] = useState([]);
@@ -20,7 +20,7 @@ const Production = () => {
         product_id: '',
         quantity: '',
         unit_cost: '',
-        date: format(new Date(), 'yyyy-MM-dd')
+        date: getTodayLocalDate()
     });
 
     useEffect(() => {
@@ -49,7 +49,7 @@ const Production = () => {
             product_id: item.product_id,
             quantity: item.quantity,
             unit_cost: item.unit_cost,
-            date: item.date ? format(new Date(item.date), 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd')
+            date: item.date ? toInputDateFormat(item.date) : getTodayLocalDate()
         });
     };
 
@@ -76,7 +76,7 @@ const Production = () => {
     };
 
     const resetForm = () => {
-        setForm({ product_id: '', quantity: '', unit_cost: '', date: format(new Date(), 'yyyy-MM-dd') });
+        setForm({ product_id: '', quantity: '', unit_cost: '', date: getTodayLocalDate() });
         setEditingProduction(null);
     };
 
@@ -226,7 +226,7 @@ const Production = () => {
                                 {production.map((item) => (
                                     <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-4 md:px-6 py-3 text-brand-gray whitespace-nowrap">
-                                            {format(new Date(item.date), 'dd/MM/yyyy')}
+                                            {formatLocalDate(item.date)}
                                         </td>
                                         <td className="px-4 md:px-6 py-3 font-medium text-brand-dark">{item.product_name}</td>
                                         <td className="px-4 md:px-6 py-3 text-right font-medium">{item.quantity}</td>

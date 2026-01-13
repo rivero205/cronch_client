@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api';
 import { Plus, Trash2, Pencil } from 'lucide-react';
-import { format } from 'date-fns';
 import { useToast } from '../contexts/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
+import { getTodayLocalDate, formatLocalDate, toInputDateFormat } from '../lib/dateUtils';
 
 const Expenses = () => {
     const [expenses, setExpenses] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [form, setForm] = useState({ description: '', amount: '', date: format(new Date(), 'yyyy-MM-dd') });
+    const [form, setForm] = useState({ description: '', amount: '', date: getTodayLocalDate() });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [editingExpense, setEditingExpense] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -37,7 +37,7 @@ const Expenses = () => {
         setForm({
             description: expense.description,
             amount: expense.amount,
-            date: expense.date ? format(new Date(expense.date), 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd')
+            date: expense.date ? toInputDateFormat(expense.date) : getTodayLocalDate()
         });
     };
 
@@ -62,7 +62,7 @@ const Expenses = () => {
     };
 
     const resetForm = () => {
-        setForm({ description: '', amount: '', date: format(new Date(), 'yyyy-MM-dd') });
+        setForm({ description: '', amount: '', date: getTodayLocalDate() });
         setEditingExpense(null);
     };
 
@@ -192,7 +192,7 @@ const Expenses = () => {
                                 {expenses.map((expense) => (
                                     <tr key={expense.id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-4 md:px-6 py-3 text-brand-gray whitespace-nowrap">
-                                            {format(new Date(expense.date), 'dd/MM/yyyy')}
+                                            {formatLocalDate(expense.date)}
                                         </td>
                                         <td className="px-4 md:px-6 py-3 font-medium text-brand-dark">{expense.description}</td>
                                         <td className="px-4 md:px-6 py-3 text-right font-bold text-brand-dark whitespace-nowrap">
