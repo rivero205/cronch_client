@@ -10,9 +10,9 @@
 export const parseLocalDate = (dateString) => {
     if (!dateString) return new Date();
 
-    // If it's a full timestamp, create a Date object directly
+    // If it's a full timestamp, extract just the date part (YYYY-MM-DD)
     if (dateString.includes('T')) {
-        return new Date(dateString);
+        dateString = dateString.split('T')[0];
     }
     
     // Add 'T00:00:00' to treat the date as local
