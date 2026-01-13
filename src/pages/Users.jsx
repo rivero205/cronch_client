@@ -36,13 +36,19 @@ const Users = () => {
         try {
             setLoading(true);
 
-            // Cargar usuarios activos (solo status = 'active')
-            const { data: activeUsersData, error } = await supabase
+            // Super Admin ve todos los usuarios; Admin/Manager solo de su negocio
+            let query = supabase
                 .from('profiles')
-                .select('id, first_name, last_name, phone, position, role, status, is_active, created_at')
-                .eq('business_id', profile.business_id)
+                .select('id, first_name, last_name, phone, position, role, status, is_active, created_at, business:businesses(id, name)')
                 .eq('status', 'active')
-                .order('created_at', { ascending: false });
+                .neq('role', 'super_admin'); // Excluir super admins de la lista de equipos
+            
+            // Admin/Manager solo ve usuarios de su negocio
+            if (!isSuperAdmin && profile.business_id) {
+                query = query.eq('business_id', profile.business_id);
+            }
+            
+            const { data: activeUsersData, error } = await query.order('created_at', { ascending: false });
 
             if (error) throw error;
             setUsers(activeUsersData || []);
@@ -61,8 +67,8 @@ const Users = () => {
 
     const loadPendingUsers = async () => {
         try {
-            // Obtener usuarios pendientes incluyendo email
-            const { data, error } = await supabase
+            // Super Admin ve todos los pendientes; Admin solo de su negocio
+            let query = supabase
                 .from('profiles')
                 .select(`
                     id,
@@ -73,11 +79,17 @@ const Users = () => {
                     position,
                     role,
                     status,
-                    created_at
+                    created_at,
+                    business:businesses(id, name)
                 `)
-                .eq('business_id', profile.business_id)
-                .eq('status', 'pending')
-                .order('created_at', { ascending: false });
+                .eq('status', 'pending');
+            
+            // Admin solo ve pendientes de su negocio
+            if (!isSuperAdmin && profile.business_id) {
+                query = query.eq('business_id', profile.business_id);
+            }
+
+            const { data, error } = await query.order('created_at', { ascending: false });
 
             if (error) throw error;
 

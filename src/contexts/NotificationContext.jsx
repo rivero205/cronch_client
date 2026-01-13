@@ -15,13 +15,14 @@ export const useNotifications = () => {
 };
 
 export const NotificationProvider = ({ children }) => {
-    const { profile } = useAuth();
+    const { profile, user } = useAuth();
     const { showInfo, showSuccess, showWarning, showError } = useToast();
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [loading, setLoading] = useState(true);
 
     const businessId = profile?.business_id;
+    const userId = user?.id;
 
     // Subscribe to Push Notifications
     const subscribeToPushNotifications = async () => {
@@ -136,7 +137,7 @@ export const NotificationProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        if (!businessId) {
+        if (!userId) {
             setNotifications([]);
             setUnreadCount(0);
             setLoading(false);
@@ -156,7 +157,7 @@ export const NotificationProvider = ({ children }) => {
                 const { data, error } = await supabase
                     .from('notifications')
                     .select('*')
-                    .eq('business_id', businessId)
+                    .eq('user_id', userId)  // Cambio: usar user_id en lugar de business_id
                     .order('created_at', { ascending: false })
                     .limit(50);
 
@@ -203,7 +204,7 @@ export const NotificationProvider = ({ children }) => {
                     event: 'INSERT',
                     schema: 'public',
                     table: 'notifications',
-                    filter: `business_id=eq.${businessId}`
+                    filter: `user_id=eq.${userId}`  // Cambio: usar user_id en lugar de business_id
                 },
                 (payload) => {
                     handleNewNotification(payload.new);
@@ -220,7 +221,7 @@ export const NotificationProvider = ({ children }) => {
             clearInterval(reminderInterval);
         };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [businessId, showInfo, showSuccess, showWarning, showError]);
+    }, [userId, showInfo, showSuccess, showWarning, showError]);
 
     const countUnread = (list) => {
         const count = list.filter(n => !n.is_read).length;
