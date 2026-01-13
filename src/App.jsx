@@ -64,6 +64,18 @@ function RoleProtectedRoute({ children, allowedRoles }) {
   return children;
 }
 
+// Home component that redirects based on role
+function Home() {
+  const { profile } = useAuth();
+  
+  // Super Admin goes to Reports, others to Dashboard
+  if (profile?.role === 'super_admin') {
+    return <Navigate to="/reports" replace />;
+  }
+  
+  return <Dashboard />;
+}
+
 function AppRoutes() {
   const { user } = useAuth();
 
@@ -94,7 +106,7 @@ function AppRoutes() {
           <ProtectedRoute>
             <Layout>
               <Routes>
-                <Route path="/" element={<Dashboard />} />
+                <Route path="/" element={<Home />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/expenses" element={<Expenses />} />
                 <Route path="/production" element={<Production />} />

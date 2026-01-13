@@ -36,7 +36,7 @@ const Users = () => {
         try {
             setLoading(true);
 
-            // Super Admin ve todos los usuarios; Admin/Manager solo de su negocio
+            // Construir query base
             let query = supabase
                 .from('profiles')
                 .select('id, first_name, last_name, phone, position, role, status, is_active, created_at, business:businesses(id, name)')
@@ -44,8 +44,16 @@ const Users = () => {
                 .neq('role', 'super_admin'); // Excluir super admins de la lista de equipos
             
             // Admin/Manager solo ve usuarios de su negocio
-            if (!isSuperAdmin && profile.business_id) {
-                query = query.eq('business_id', profile.business_id);
+            // Super Admin ve todos los usuarios
+            if (!isSuperAdmin) {
+                if (profile?.business_id) {
+                    query = query.eq('business_id', profile.business_id);
+                } else {
+                    // Si no es Super Admin y no tiene business_id, no mostrar nada
+                    setUsers([]);
+                    setLoading(false);
+                    return;
+                }
             }
             
             const { data: activeUsersData, error } = await query.order('created_at', { ascending: false });

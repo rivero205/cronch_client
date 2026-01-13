@@ -97,10 +97,9 @@ const Layout = ({ children }) => {
     ];
 
     const superAdminNavItems = [
-        { path: '/', label: 'Dashboard Global', icon: LayoutDashboard, roles: ['super_admin'] },
+        { path: '/reports', label: 'Reportes Globales', icon: FileText, roles: ['super_admin'] },
         { path: '/businesses-admin', label: 'Negocios', icon: Building2, roles: ['super_admin'] },
         { path: '/users', label: 'Usuarios', icon: Users, roles: ['super_admin'] },
-        { path: '/reports', label: 'Reportes Globales', icon: FileText, roles: ['super_admin'] },
     ];
 
     // Use different navigation based on role
