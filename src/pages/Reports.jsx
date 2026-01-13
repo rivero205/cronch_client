@@ -53,7 +53,9 @@ const Reports = () => {
                 // For now, let's keep it empty to force selection, or select first.
             }
         } catch (error) {
-            console.error('Error loading businesses:', error);
+            console.error('Failed to load businesses', error);
+            // Don't show error toast, just log it
+            setBusinesses([]);
         }
     };
 

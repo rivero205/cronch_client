@@ -49,7 +49,8 @@ const BusinessesAdmin = () => {
             setBusinesses(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Failed to load businesses', error);
-            showError('Error al cargar negocios');
+            setBusinesses([]);
+            // Don't show error toast, user will see empty state
         } finally {
             setLoading(false);
         }
@@ -212,9 +213,18 @@ const BusinessesAdmin = () => {
 
             <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
                 {loading ? (
-                    <div className="p-8 text-center text-brand-gray">Cargando negocios...</div>
+                    <div className="p-8 text-center text-brand-gray">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange mx-auto mb-4"></div>
+                        Cargando negocios...
+                    </div>
                 ) : businesses.length === 0 ? (
-                    <div className="p-8 text-center text-brand-gray">No hay negocios registrados.</div>
+                    <div className="p-12 text-center">
+                        <Building2 size={48} className="text-gray-300 mx-auto mb-4" />
+                        <p className="text-gray-500 mb-2">No hay negocios registrados</p>
+                        <p className="text-sm text-gray-400">
+                            Si el servidor está inactivo, por favor verifica la conexión
+                        </p>
+                    </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left">

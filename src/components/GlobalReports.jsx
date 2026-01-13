@@ -44,7 +44,9 @@ const GlobalReports = () => {
             setRanking(rankingData);
         } catch (error) {
             console.error('Error fetching global reports:', error);
-            toast.error('Error al cargar reportes globales');
+            // Set empty data instead of showing error
+            setSummary(null);
+            setRanking([]);
         } finally {
             setLoading(false);
         }
@@ -63,6 +65,27 @@ const GlobalReports = () => {
         return (
             <div className="flex justify-center items-center h-64">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange"></div>
+            </div>
+        );
+    }
+
+    // Show message if server is not available
+    if (!loading && !summary) {
+        return (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-8 text-center">
+                <Activity size={48} className="text-yellow-600 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    Servidor No Disponible
+                </h3>
+                <p className="text-gray-600 mb-4">
+                    No se puede conectar con el servidor. Por favor, verifica que el servidor esté funcionando.
+                </p>
+                <button
+                    onClick={fetchData}
+                    className="px-6 py-2 bg-brand-orange text-white rounded-lg font-medium hover:bg-orange-600 transition-colors"
+                >
+                    Reintentar
+                </button>
             </div>
         );
     }

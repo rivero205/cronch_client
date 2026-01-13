@@ -237,15 +237,31 @@ export const getDailyReport = async (date, startDate = null, endDate = null, bus
 
 // Super Admin Global Reports
 export const getGlobalSummary = async (startDate, endDate) => {
-    const headers = await getAuthHeaders();
-    const res = await fetch(`${API_URL}/reports/admin/global-summary?startDate=${startDate}&endDate=${endDate}`, { headers });
-    return res.json();
+    try {
+        const headers = await getAuthHeaders();
+        const res = await fetch(`${API_URL}/reports/admin/global-summary?startDate=${startDate}&endDate=${endDate}`, { headers });
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+    } catch (error) {
+        console.error('Error fetching global summary:', error);
+        throw error;
+    }
 };
 
 export const getBusinessRanking = async (startDate, endDate, maxResults = 10) => {
-    const headers = await getAuthHeaders();
-    const res = await fetch(`${API_URL}/reports/admin/ranking?startDate=${startDate}&endDate=${endDate}&maxResults=${maxResults}`, { headers });
-    return res.json();
+    try {
+        const headers = await getAuthHeaders();
+        const res = await fetch(`${API_URL}/reports/admin/ranking?startDate=${startDate}&endDate=${endDate}&maxResults=${maxResults}`, { headers });
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+    } catch (error) {
+        console.error('Error fetching business ranking:', error);
+        throw error;
+    }
 };
 
 // Download Reports
@@ -335,9 +351,17 @@ export const api = {
     },
     // Businesses Management
     getAllBusinesses: async () => {
-        const headers = await getAuthHeaders();
-        const res = await fetch(`${API_URL}/businesses`, { headers });
-        return res.json();
+        try {
+            const headers = await getAuthHeaders();
+            const res = await fetch(`${API_URL}/businesses`, { headers });
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        } catch (error) {
+            console.error('Error fetching businesses:', error);
+            throw error;
+        }
     },
     getBusinessById: async (id) => {
         const headers = await getAuthHeaders();
