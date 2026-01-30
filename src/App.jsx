@@ -10,6 +10,7 @@ import Products from './pages/Products';
 import Expenses from './pages/Expenses';
 import Production from './pages/Production';
 import Sales from './pages/Sales';
+import LandingPage from './pages/LandingPage';
 import Reports from './pages/Reports';
 import Profile from './pages/Profile';
 import Businesses from './pages/Businesses';
@@ -53,7 +54,7 @@ function RoleProtectedRoute({ children, allowedRoles }) {
   }
 
   if (!hasRole(allowedRoles)) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;
@@ -76,18 +77,19 @@ function AppRoutes() {
 
   return (
     <Routes>
+      <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
       {/* Public routes */}
       <Route
         path="/login"
-        element={user ? <Navigate to="/" replace /> : <Login />}
+        element={user ? <Navigate to="/dashboard" replace /> : <Login />}
       />
       <Route
         path="/register"
-        element={user ? <Navigate to="/" replace /> : <RegisterWithInvitation />}
+        element={user ? <Navigate to="/dashboard" replace /> : <RegisterWithInvitation />}
       />
       <Route
         path="/forgot-password"
-        element={user ? <Navigate to="/" replace /> : <ForgotPassword />}
+        element={user ? <Navigate to="/dashboard" replace /> : <ForgotPassword />}
       />
       <Route
         path="/reset-password"
@@ -101,7 +103,7 @@ function AppRoutes() {
           <ProtectedRoute>
             <Layout>
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/dashboard" element={<Home />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/expenses" element={<Expenses />} />
                 <Route path="/production" element={<Production />} />

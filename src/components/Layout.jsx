@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, ShoppingCart, Factory, DollarSign, User, LogOut, FileText, Package, Menu, X, AlertTriangle, Building2, Users } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import logo from '../assets/logo_compañia.png';
@@ -44,6 +44,7 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel }) => {
 
 const Layout = ({ children }) => {
     const location = useLocation();
+    const navigate = useNavigate();
     const { signOut, getUserDisplayName, hasRole } = useAuth();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -75,6 +76,8 @@ const Layout = ({ children }) => {
     const handleLogoutConfirm = async () => {
         setShowLogoutModal(false);
         await signOut();
+        // After sign out, send user to public landing page
+        navigate('/');
     };
 
     const handleLogoutCancel = () => {
@@ -86,7 +89,7 @@ const Layout = ({ children }) => {
 
     // Define nav items with required roles - SEPARATED by role type
     const adminNavItems = [
-        { path: '/', label: 'Dashboard', icon: LayoutDashboard, roles: ['manager', 'admin'] },
+        { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['manager', 'admin'] },
         { path: '/products', label: 'Productos', icon: Package, roles: ['manager', 'admin'] },
         { path: '/expenses', label: 'Insumos', icon: ShoppingCart, roles: ['manager', 'admin'] },
         { path: '/production', label: 'Producción', icon: Factory, roles: ['manager', 'admin'] },

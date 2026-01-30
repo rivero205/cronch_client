@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LogIn } from 'lucide-react';
+import { LogIn, ArrowLeft } from 'lucide-react';
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -10,6 +10,8 @@ export default function Login() {
     const [loading, setLoading] = useState(false);
     const { signIn } = useAuth();
     const navigate = useNavigate();
+
+    const goToLanding = () => navigate('/');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -27,7 +29,16 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-50 flex items-center justify-center p-4 relative">
+            <button
+                type="button"
+                onClick={goToLanding}
+                className="absolute top-6 left-6 flex items-center gap-2 text-brand-orange hover:text-orange-600 bg-white/0 p-2 rounded-md"
+            >
+                <ArrowLeft size={20} />
+                <span className="hidden sm:inline font-medium">Ir al inicio</span>
+            </button>
+
             <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-orange rounded-full mb-4">
@@ -83,6 +94,7 @@ export default function Login() {
                         <a href="/forgot-password" className="text-sm font-medium text-brand-orange hover:text-orange-600">
                             ¿Olvidaste tu contraseña?
                         </a>
+                    
                     </div>
                 </form>
 
