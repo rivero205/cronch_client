@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api';
+import useMyProfile from '../hooks/useMyProfile';
 import { Building2, Calendar, CheckCircle, MapPin, Phone, Mail, Globe, FileText, Users as UsersIcon, Briefcase, Edit2, X } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
+import TableSkeleton from '../components/TableSkeleton.jsx';
 import { useAuth } from '../contexts/AuthContext';
 
 const Businesses = () => {
@@ -15,22 +17,14 @@ const Businesses = () => {
     const isAdmin = authProfile?.role === 'admin';
     const isSuperAdmin = authProfile?.role === 'super_admin';
 
-    const loadData = async () => {
-        try {
-            const data = await api.getMyProfile();
-            setProfile(data);
-        } catch (error) {
-            console.error('Failed to load profile', error);
-            showError('Error al cargar información del negocio');
-        } finally {
-            setLoading(false);
-        }
-    };
+    // Use react-query powered hook
+    const { data: myProfileData, isLoading: myProfileLoading, refetch: refetchProfile } = useMyProfile();
 
     useEffect(() => {
-        loadData();
+        if (myProfileData) setProfile(myProfileData);
+        setLoading(false);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [myProfileData]);
 
     const handleOpenEditModal = () => {
         setEditData({
@@ -61,7 +55,7 @@ const Businesses = () => {
         }
     };
 
-    if (loading) return <div className="p-8 text-center text-brand-gray">Cargando...</div>;
+    if (loading) return <TableSkeleton columns={2} rows={4} />;
 
     if (!profile || !profile.business) {
         return (

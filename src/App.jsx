@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import Layout from './components/Layout';
+import TableSkeleton from './components/TableSkeleton.jsx';
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import Expenses from './pages/Expenses';
@@ -27,10 +28,7 @@ function ProtectedRoute({ children }) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando...</p>
-        </div>
+        <TableSkeleton columns={2} rows={4} />
       </div>
     );
   }
@@ -49,10 +47,7 @@ function RoleProtectedRoute({ children, allowedRoles }) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando...</p>
-        </div>
+        <TableSkeleton columns={2} rows={4} />
       </div>
     );
   }

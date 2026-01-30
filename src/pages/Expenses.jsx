@@ -4,10 +4,17 @@ import { Plus, Trash2, Pencil } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
 import { getTodayLocalDate, formatLocalDate, toInputDateFormat } from '../lib/dateUtils';
+import useGastos from '../hooks/useGastos';
+import { useQueryClient } from '@tanstack/react-query';
+import TableSkeleton from '../components/TableSkeleton.jsx';
 
 const Expenses = () => {
+    const EXPENSES_LIMIT = 10;
     const [expenses, setExpenses] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [expensesTotal, setExpensesTotal] = useState(null);
+    const [expensesNextCursor, setExpensesNextCursor] = useState(null);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [form, setForm] = useState({ description: '', amount: '', date: getTodayLocalDate() });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [editingExpense, setEditingExpense] = useState(null);
@@ -16,19 +23,59 @@ const Expenses = () => {
 
     const { showSuccess, showError } = useToast();
 
-    useEffect(() => {
-        loadData();
-    }, []);
+    const queryClient = useQueryClient();
+    const { data: gastosData, isLoading: gastosLoading, refetch: refetchGastos } = useGastos({ limit: EXPENSES_LIMIT });
 
-    const loadData = async () => {
+    useEffect(() => {
+        if (gastosData) {
+            setExpenses(Array.isArray(gastosData.data) ? gastosData.data : []);
+            setExpensesTotal(Number(gastosData.total || 0));
+            setExpensesNextCursor(gastosData.nextCursor || null);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [gastosData]);
+
+    const loadMoreExpenses = async (cursor = null, replace = false) => {
         try {
-            const data = await api.getExpenses();
-            setExpenses(Array.isArray(data) ? data : []);
+            if (replace) {
+                await refetchGastos();
+                return;
+            }
+            setLoadingMore(true);
+
+            const params = { limit: EXPENSES_LIMIT };
+            if (cursor && cursor.date && cursor.id) {
+                params.cursorDate = cursor.date;
+                params.cursorId = cursor.id;
+            } else if (expensesNextCursor) {
+                params.cursorDate = expensesNextCursor.date;
+                params.cursorId = expensesNextCursor.id;
+            }
+
+            const resp = await api.getExpenses(params);
+            const items = Array.isArray(resp.data) ? resp.data : [];
+            setExpenses(prev => [...prev, ...items]);
+            if (resp.total !== undefined) setExpensesTotal(Number(resp.total));
+            setExpensesNextCursor(resp.nextCursor || null);
+
+            try {
+                queryClient.setQueryData(['expenses', { limit: EXPENSES_LIMIT }], (old) => {
+                    const oldData = old && old.data ? old.data : [];
+                    return {
+                        ...(old || {}),
+                        data: [...oldData, ...items],
+                        total: resp.total,
+                        nextCursor: resp.nextCursor || null
+                    };
+                });
+            } catch (e) {}
+
         } catch (error) {
             console.error('Failed to load expenses', error);
             showError('Error al cargar gastos');
         } finally {
             setLoading(false);
+            setLoadingMore(false);
         }
     };
 
@@ -51,8 +98,8 @@ const Expenses = () => {
 
         try {
             await api.deleteExpense(expenseToDelete.id);
+            await queryClient.invalidateQueries(['expenses']);
             showSuccess('Gasto eliminado exitosamente');
-            loadData();
         } catch (error) {
             console.error('Failed to delete expense', error);
             showError('Error al eliminar gasto');
@@ -88,7 +135,8 @@ const Expenses = () => {
             }
 
             resetForm();
-            loadData();
+            setExpensesOffset(0);
+            await loadMoreExpenses(0, true);
         } catch (error) {
             console.error('Failed to save expense', error);
             showError('Error al guardar gasto');
@@ -173,11 +221,12 @@ const Expenses = () => {
             {/* List */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
                 <h3 className="text-sm font-medium text-brand-gray p-4 border-b uppercase">Historial Reciente</h3>
-                {loading ? (
-                    <div className="p-8 text-center text-brand-gray">Cargando...</div>
+                {(gastosLoading && expenses.length === 0) ? (
+                    <TableSkeleton columns={4} rows={4} />
                 ) : expenses.length === 0 ? (
                     <div className="p-8 text-center text-brand-gray">No hay gastos registrados.</div>
                 ) : (
+                    <>
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left min-w-[600px]">
                             <thead className="bg-gray-50 text-gray-500 border-b">
@@ -221,6 +270,19 @@ const Expenses = () => {
                             </tbody>
                         </table>
                     </div>
+                    {expenses.length < expensesTotal && (
+                        <div className="p-4 text-center">
+                            <button
+                                className="px-6 py-2 rounded bg-brand-gold text-white font-medium hover:bg-opacity-90 transition-colors"
+                                onClick={() => loadMoreExpenses(expensesOffset)}
+                                disabled={loadingMore}
+                            >
+                                {loadingMore ? 'Cargando...' : 'Cargar más'}
+                            </button>
+                            <div className="text-xs text-gray-400 mt-2">Mostrando {expenses.length} de {expensesTotal}</div>
+                        </div>
+                    )}
+                    </>
                 )}
             </div>
 

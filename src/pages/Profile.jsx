@@ -4,37 +4,31 @@ import { User, Building2, Mail, Calendar, Shield, Phone, Briefcase } from 'lucid
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { supabase } from '../lib/supabaseClient';
+import useMyProfile from '../hooks/useMyProfile';
 
 const Profile = () => {
     const { user, profile } = useAuth();
     const [businessData, setBusinessData] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const { data: myProfileData, isLoading: myProfileLoading } = useMyProfile();
 
     useEffect(() => {
+        if (!profile?.business_id) return;
+        const loadBusinessData = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('businesses')
+                    .select('name, created_at')
+                    .eq('id', profile.business_id)
+                    .single();
+
+                if (error) throw error;
+                setBusinessData(data);
+            } catch (error) {
+                console.error('Error loading business:', error);
+            }
+        };
         loadBusinessData();
     }, [profile]);
-
-    const loadBusinessData = async () => {
-        if (!profile?.business_id) {
-            setLoading(false);
-            return;
-        }
-
-        try {
-            const { data, error } = await supabase
-                .from('businesses')
-                .select('name, created_at')
-                .eq('id', profile.business_id)
-                .single();
-
-            if (error) throw error;
-            setBusinessData(data);
-        } catch (error) {
-            console.error('Error loading business:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     if (!user || !profile) return null;
 

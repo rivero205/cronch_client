@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { api } from '../api';
+import useDashboard from '../hooks/useDashboard';
 import { parseLocalDate } from '../lib/dateUtils';
 import {
     TrendingUp,
@@ -22,8 +22,6 @@ const PERIODS = {
 
 const Dashboard = () => {
     const { toast } = useToast();
-    const [loading, setLoading] = useState(true);
-    const [report, setReport] = useState(null);
     const [selectedPeriod, setSelectedPeriod] = useState('week');
 
     // Date Calculation Logic
@@ -62,24 +60,9 @@ const Dashboard = () => {
         return '';
     };
 
-    useEffect(() => {
-        fetchDashboardData();
-    }, [selectedPeriod]);
-
-    const fetchDashboardData = async () => {
-        try {
-            setLoading(true);
-            const { date, startDate, endDate } = getDateRange();
-            // Use getDailyReport which handles both single date and range
-            const data = await api.getDailyReport(date, startDate, endDate);
-            setReport(data);
-        } catch (error) {
-            console.error('Error loading dashboard:', error);
-            toast?.error('Error al cargar datos del dashboard');
-        } finally {
-            setLoading(false);
-        }
-    };
+    // derive current date range and use the react-query powered hook
+    const { date, startDate, endDate } = getDateRange();
+    const { data: report, isLoading, isFetching, refetch } = useDashboard({ date, startDate, endDate });
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('es-CO', {
@@ -90,7 +73,7 @@ const Dashboard = () => {
         }).format(amount || 0);
     };
 
-    if (loading) {
+    if (isLoading && !report) {
         return (
             <div className="flex justify-center items-center h-64">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange"></div>
@@ -135,7 +118,7 @@ const Dashboard = () => {
                     </div>
 
                     <button
-                        onClick={fetchDashboardData}
+                        onClick={() => refetch()}
                         className="p-2 text-gray-400 hover:text-brand-orange transition-colors"
                         title="Actualizar"
                     >

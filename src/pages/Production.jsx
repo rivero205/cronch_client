@@ -4,11 +4,18 @@ import { Plus, Factory, Pencil, Trash2 } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
 import { getTodayLocalDate, formatLocalDate, toInputDateFormat } from '../lib/dateUtils';
+import useProduccion from '../hooks/useProduccion';
+import { useQueryClient } from '@tanstack/react-query';
+import TableSkeleton from '../components/TableSkeleton.jsx';
 
 const Production = () => {
+    const PRODUCTION_LIMIT = 10;
     const [production, setProduction] = useState([]);
     const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [productionTotal, setProductionTotal] = useState(null);
+    const [productionNextCursor, setProductionNextCursor] = useState(null);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [editingProduction, setEditingProduction] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -23,23 +30,60 @@ const Production = () => {
         date: getTodayLocalDate()
     });
 
-    useEffect(() => {
-        loadData();
-    }, []);
+    const queryClient = useQueryClient();
+    const { data: prodData, isLoading: prodLoading, refetch: refetchProd } = useProduccion({ limit: PRODUCTION_LIMIT });
 
-    const loadData = async () => {
+    useEffect(() => {
+        if (prodData) {
+            setProduction(Array.isArray(prodData.data) ? prodData.data : []);
+            setProductionTotal(Number(prodData.total || 0));
+            setProductionNextCursor(prodData.nextCursor || null);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [prodData]);
+
+    const loadMoreProduction = async (cursor = null, replace = false) => {
         try {
-            const [prodData, productsData] = await Promise.all([
-                api.getProduction(),
-                api.getProducts()
-            ]);
-            setProduction(Array.isArray(prodData) ? prodData : []);
-            setProducts(Array.isArray(productsData) ? productsData : []);
+            if (replace) {
+                await refetchProd();
+                api.getProducts().then(productsData => { setProducts(Array.isArray(productsData) ? productsData : []); }).catch(()=>{});
+                return;
+            }
+            setLoadingMore(true);
+
+            const params = { limit: PRODUCTION_LIMIT };
+            if (cursor && cursor.date && cursor.id) {
+                params.cursorDate = cursor.date;
+                params.cursorId = cursor.id;
+            } else if (productionNextCursor) {
+                params.cursorDate = productionNextCursor.date;
+                params.cursorId = productionNextCursor.id;
+            }
+
+            const prodResp = await api.getProduction(params);
+            const items = Array.isArray(prodResp.data) ? prodResp.data : [];
+            setProduction(prev => [...prev, ...items]);
+            if (prodResp.total !== undefined) setProductionTotal(Number(prodResp.total));
+            setProductionNextCursor(prodResp.nextCursor || null);
+
+            try {
+                queryClient.setQueryData(['production', { limit: PRODUCTION_LIMIT }], (old) => {
+                    const oldData = old && old.data ? old.data : [];
+                    return {
+                        ...(old || {}),
+                        data: [...oldData, ...items],
+                        total: prodResp.total,
+                        nextCursor: prodResp.nextCursor || null
+                    };
+                });
+            } catch (e) {}
+
         } catch (error) {
             console.error('Failed to load data', error);
             showError('Error al cargar datos');
         } finally {
             setLoading(false);
+            setLoadingMore(false);
         }
     };
 
@@ -63,9 +107,7 @@ const Production = () => {
 
         try {
             await api.deleteProduction(productionToDelete.id);
-            // Refresh logic
-            const prodData = await api.getProduction();
-            setProduction(Array.isArray(prodData) ? prodData : []);
+            await queryClient.invalidateQueries(['production']);
             showSuccess('Producción eliminada exitosamente');
         } catch (error) {
             console.error('Failed to delete production', error);
@@ -103,8 +145,8 @@ const Production = () => {
             }
 
             resetForm();
-            const prodData = await api.getProduction();
-            setProduction(Array.isArray(prodData) ? prodData : []);
+            setProductionOffset(0);
+            await loadMoreProduction(0, true);
         } catch (error) {
             console.error('Failed to save production', error);
             showError('Error al guardar producción');
@@ -205,11 +247,12 @@ const Production = () => {
             {/* List */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
                 <h3 className="text-sm font-medium text-brand-gray p-4 border-b uppercase">Historial Reciente</h3>
-                {loading ? (
-                    <div className="p-8 text-center text-brand-gray">Cargando...</div>
+                {(prodLoading && production.length === 0) ? (
+                    <TableSkeleton columns={6} rows={4} />
                 ) : production.length === 0 ? (
                     <div className="p-8 text-center text-brand-gray">No hay producción registrada.</div>
                 ) : (
+                    <>
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left min-w-[600px]">
                             <thead className="bg-gray-50 text-gray-500 border-b">
@@ -259,6 +302,19 @@ const Production = () => {
                             </tbody>
                         </table>
                     </div>
+                    {production.length < productionTotal && (
+                        <div className="p-4 text-center">
+                            <button
+                                className="px-6 py-2 rounded bg-brand-gold text-white font-medium hover:bg-opacity-90 transition-colors"
+                                onClick={() => loadMoreProduction(productionOffset)}
+                                disabled={loadingMore}
+                            >
+                                {loadingMore ? 'Cargando...' : 'Cargar más'}
+                            </button>
+                            <div className="text-xs text-gray-400 mt-2">Mostrando {production.length} de {productionTotal}</div>
+                        </div>
+                    )}
+                    </>
                 )}
             </div>
 

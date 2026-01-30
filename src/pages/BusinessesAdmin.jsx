@@ -4,6 +4,7 @@ import { Building2, Plus, Edit2, Trash2, CheckCircle, XCircle, MapPin, Phone, Br
 import { useToast } from '../contexts/ToastContext';
 import { supabase } from '../lib/supabaseClient';
 import ConfirmModal from '../components/ConfirmModal';
+import TableSkeleton from '../components/TableSkeleton.jsx';
 
 const BusinessesAdmin = () => {
     const [businesses, setBusinesses] = useState([]);
@@ -213,10 +214,7 @@ const BusinessesAdmin = () => {
 
             <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
                 {loading ? (
-                    <div className="p-8 text-center text-brand-gray">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange mx-auto mb-4"></div>
-                        Cargando negocios...
-                    </div>
+                    <TableSkeleton columns={5} rows={5} />
                 ) : businesses.length === 0 ? (
                     <div className="p-12 text-center">
                         <Building2 size={48} className="text-gray-300 mx-auto mb-4" />

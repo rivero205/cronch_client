@@ -65,9 +65,22 @@ export const deleteProduct = async (id) => {
 // Expenses
 export const getExpenses = async (filters = {}) => {
     const headers = await getAuthHeaders();
-    const queryParams = new URLSearchParams(filters).toString();
+    // Default to fetching only recent items when no explicit limit provided
+    const params = { ...filters };
+    if (typeof params.limit === 'undefined') params.limit = 10;
+    const queryParams = new URLSearchParams(params).toString();
     const res = await fetch(`${API_URL}/expenses?${queryParams}`, { headers });
-    return res.json();
+    const json = await res.json();
+    const nextCursorHeader = res.headers.get('X-Next-Cursor');
+    let nextCursor = null;
+    if (nextCursorHeader) {
+        const [dateStr, idStr] = nextCursorHeader.split('|');
+        nextCursor = { date: dateStr, id: Number(idStr) };
+    }
+    if (Array.isArray(json)) return { data: json, total: json.length, nextCursor };
+    if (json && typeof json === 'object' && Array.isArray(json.data)) return { data: json.data, total: Number(json.total || json.data.length), nextCursor: json.nextCursor || nextCursor };
+    if (json && typeof json === 'object' && Array.isArray(json.data) === false && Array.isArray(json)) return { data: json, total: json.length, nextCursor };
+    return { data: [], total: 0, nextCursor: null };
 };
 
 export const createExpense = async (expenseData) => {
@@ -106,9 +119,20 @@ export const deleteExpense = async (id) => {
 // Production
 export const getProduction = async (filters = {}) => {
     const headers = await getAuthHeaders();
-    const queryParams = new URLSearchParams(filters).toString();
+    const params = { ...filters };
+    if (typeof params.limit === 'undefined') params.limit = 10;
+    const queryParams = new URLSearchParams(params).toString();
     const res = await fetch(`${API_URL}/production?${queryParams}`, { headers });
-    return res.json();
+    const json = await res.json();
+    const nextCursorHeader = res.headers.get('X-Next-Cursor');
+    let nextCursor = null;
+    if (nextCursorHeader) {
+        const [dateStr, idStr] = nextCursorHeader.split('|');
+        nextCursor = { date: dateStr, id: Number(idStr) };
+    }
+    if (Array.isArray(json)) return { data: json, total: json.length, nextCursor };
+    if (json && typeof json === 'object' && Array.isArray(json.data)) return { data: json.data, total: Number(json.total || json.data.length), nextCursor: json.nextCursor || nextCursor };
+    return { data: [], total: 0, nextCursor: null };
 };
 
 export const createProduction = async (productionData) => {
@@ -143,9 +167,20 @@ export const deleteProduction = async (id) => {
 // Sales
 export const getSales = async (filters = {}) => {
     const headers = await getAuthHeaders();
-    const queryParams = new URLSearchParams(filters).toString();
+    const params = { ...filters };
+    if (typeof params.limit === 'undefined') params.limit = 10;
+    const queryParams = new URLSearchParams(params).toString();
     const res = await fetch(`${API_URL}/sales?${queryParams}`, { headers });
-    return res.json();
+    const json = await res.json();
+    const nextCursorHeader = res.headers.get('X-Next-Cursor');
+    let nextCursor = null;
+    if (nextCursorHeader) {
+        const [dateStr, idStr] = nextCursorHeader.split('|');
+        nextCursor = { date: dateStr, id: Number(idStr) };
+    }
+    if (Array.isArray(json)) return { data: json, total: json.length, nextCursor };
+    if (json && typeof json === 'object' && Array.isArray(json.data)) return { data: json.data, total: Number(json.total || json.data.length), nextCursor: json.nextCursor || nextCursor };
+    return { data: [], total: 0, nextCursor: null };
 };
 
 export const createSale = async (saleData) => {

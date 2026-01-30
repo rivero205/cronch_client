@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api';
+import useBusinessUsers from '../hooks/useBusinessUsers';
 import { Users as UsersIcon, UserPlus, Mail, Phone, Shield, Edit2, Building2, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import { createPortal } from 'react-dom';
 import ConfirmModal from '../components/ConfirmModal';
+import TableSkeleton from '../components/TableSkeleton.jsx';
 
 const Users = () => {
     const [users, setUsers] = useState([]);
@@ -28,50 +30,19 @@ const Users = () => {
     const isAdmin = profile?.role === 'admin';
     const isSuperAdmin = profile?.role === 'super_admin';
 
+    const { data: businessUsersData, isLoading: usersLoading, refetch: refetchUsers } = useBusinessUsers();
+
     useEffect(() => {
-        loadData();
-    }, []);
-
-    const loadData = async () => {
-        try {
+        const run = async () => {
             setLoading(true);
-
-            // Construir query base
-            let query = supabase
-                .from('profiles')
-                .select('id, first_name, last_name, phone, position, role, status, is_active, created_at, business:businesses(id, name)')
-                .eq('status', 'active')
-                .neq('role', 'super_admin'); // Excluir super admins de la lista de equipos
-            
-            // Admin/Manager solo ve usuarios de su negocio
-            // Super Admin ve todos los usuarios
-            if (!isSuperAdmin) {
-                if (profile?.business_id) {
-                    query = query.eq('business_id', profile.business_id);
-                } else {
-                    // Si no es Super Admin y no tiene business_id, no mostrar nada
-                    setUsers([]);
-                    setLoading(false);
-                    return;
-                }
-            }
-            
-            const { data: activeUsersData, error } = await query.order('created_at', { ascending: false });
-
-            if (error) throw error;
-            setUsers(activeUsersData || []);
-
-            // Si es admin, cargar usuarios pendientes
-            if (isAdmin || isSuperAdmin) {
-                await loadPendingUsers();
-            }
-        } catch (error) {
-            console.error('Failed to load users', error);
-            showError('Error al cargar usuarios');
-        } finally {
+            if (businessUsersData) setUsers(Array.isArray(businessUsersData) ? businessUsersData : []);
+            // keep existing pending users loading logic
+            if (isAdmin || isSuperAdmin) await loadPendingUsers();
             setLoading(false);
-        }
-    };
+        };
+        run();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [businessUsersData]);
 
     const loadPendingUsers = async () => {
         try {
@@ -292,7 +263,7 @@ const Users = () => {
             {activeTab === 'active' && (
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
                     {loading ? (
-                        <div className="p-8 text-center text-brand-gray">Cargando usuarios...</div>
+                        <TableSkeleton columns={6} rows={4} />
                     ) : users.length === 0 ? (
                         <div className="p-8 text-center text-brand-gray">No hay usuarios registrados.</div>
                     ) : (
@@ -391,7 +362,7 @@ const Users = () => {
             {activeTab === 'pending' && (
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-yellow-200">
                     {loading ? (
-                        <div className="p-8 text-center text-brand-gray">Cargando usuarios pendientes...</div>
+                        <TableSkeleton columns={5} rows={3} />
                     ) : pendingUsers.length === 0 ? (
                         <div className="p-8 text-center text-gray-500">
                             <Clock size={48} className="mx-auto mb-3 text-gray-300" />

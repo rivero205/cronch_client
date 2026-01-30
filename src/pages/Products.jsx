@@ -3,10 +3,12 @@ import { api } from '../api';
 import { Plus, Package, Pencil, Trash2 } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
+import useProductos from '../hooks/useProductos';
+import { useQueryClient } from '@tanstack/react-query';
+import TableSkeleton from '../components/TableSkeleton.jsx';
 
 const Products = () => {
     const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -18,22 +20,13 @@ const Products = () => {
 
     const { showSuccess, showError } = useToast();
 
-    useEffect(() => {
-        fetchProducts();
-    }, []);
+    const queryClient = useQueryClient();
+    const { data: productosData, isLoading: productosLoading, refetch: refetchProductos } = useProductos();
 
-    const fetchProducts = async () => {
-        try {
-            setLoading(true);
-            const data = await api.getProducts();
-            setProducts(Array.isArray(data) ? data : []);
-        } catch (err) {
-            console.error('Error loading products:', err);
-            showError('Error al cargar productos');
-        } finally {
-            setLoading(false);
-        }
-    };
+    useEffect(() => {
+        if (productosData) setProducts(Array.isArray(productosData) ? productosData : []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [productosData]);
 
     const handleEdit = (product) => {
         setEditingProduct(product);
@@ -55,7 +48,7 @@ const Products = () => {
         try {
             await api.deleteProduct(productToDelete.id);
             showSuccess('Producto eliminado exitosamente');
-            fetchProducts();
+            await queryClient.invalidateQueries(['products']);
         } catch (err) {
             showError(err.message || 'Error al eliminar producto');
         } finally {
@@ -81,13 +74,13 @@ const Products = () => {
                 showSuccess('Producto agregado exitosamente');
             }
             resetForm();
-            fetchProducts();
+            await queryClient.invalidateQueries(['products']);
         } catch (err) {
             showError(err.message || 'Error al guardar producto');
         }
     };
 
-    if (loading) return <div className="p-4 text-center">Cargando productos...</div>;
+    if (productosLoading && products.length === 0) return <TableSkeleton columns={3} rows={6} />;
 
     return (
         <div className="space-y-6">

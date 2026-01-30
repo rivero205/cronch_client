@@ -4,11 +4,18 @@ import { Plus, DollarSign, Pencil, Trash2 } from 'lucide-react';
 import { useToast } from '../contexts/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
 import { getTodayLocalDate, formatLocalDate, toInputDateFormat } from '../lib/dateUtils';
+import useVentas from '../hooks/useVentas';
+import { useQueryClient } from '@tanstack/react-query';
+import TableSkeleton from '../components/TableSkeleton.jsx';
 
 const Sales = () => {
+    const SALES_LIMIT = 10;
     const [sales, setSales] = useState([]);
+    const [salesTotal, setSalesTotal] = useState(null);
+    const [salesNextCursor, setSalesNextCursor] = useState(null);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
+    // removed local loading state; rely on react-query's `ventasLoading`
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [editingSale, setEditingSale] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -23,23 +30,61 @@ const Sales = () => {
         date: getTodayLocalDate()
     });
 
-    useEffect(() => {
-        loadData();
-    }, []);
+    const queryClient = useQueryClient();
+    const { data: ventasData, isLoading: ventasLoading, refetch: refetchVentas } = useVentas({ limit: SALES_LIMIT });
 
-    const loadData = async () => {
+    useEffect(() => {
+        if (ventasData) {
+            setSales(Array.isArray(ventasData.data) ? ventasData.data : []);
+            setSalesTotal(Number(ventasData.total || 0));
+            setSalesNextCursor(ventasData.nextCursor || null);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ventasData]);
+
+    const loadMoreSales = async (cursor = null, replace = false) => {
         try {
-            const [salesData, productsData] = await Promise.all([
-                api.getSales(),
-                api.getProducts()
-            ]);
-            setSales(Array.isArray(salesData) ? salesData : []);
-            setProducts(Array.isArray(productsData) ? productsData : []);
+            if (replace) {
+                // force refetch the main query
+                await refetchVentas();
+                api.getProducts().then(productsData => { setProducts(Array.isArray(productsData) ? productsData : []); }).catch(()=>{});
+                return;
+            }
+            setLoadingMore(true);
+
+            const params = { limit: SALES_LIMIT };
+            if (cursor && cursor.date && cursor.id) {
+                params.cursorDate = cursor.date;
+                params.cursorId = cursor.id;
+            } else if (salesNextCursor) {
+                params.cursorDate = salesNextCursor.date;
+                params.cursorId = salesNextCursor.id;
+            }
+
+            const salesResp = await api.getSales(params);
+            const items = Array.isArray(salesResp.data) ? salesResp.data : [];
+            setSales(prev => [...prev, ...items]);
+            if (salesResp.total !== undefined) setSalesTotal(Number(salesResp.total));
+            setSalesNextCursor(salesResp.nextCursor || null);
+
+            // update react-query cache so persisted value grows as well
+            try {
+                queryClient.setQueryData(['sales', { limit: SALES_LIMIT }], (old) => {
+                    const oldData = old && old.data ? old.data : [];
+                    return {
+                        ...(old || {}),
+                        data: [...oldData, ...items],
+                        total: salesResp.total,
+                        nextCursor: salesResp.nextCursor || null
+                    };
+                });
+            } catch (e) {}
+
         } catch (error) {
             console.error('Failed to load data', error);
             showError('Error al cargar datos');
         } finally {
-            setLoading(false);
+            setLoadingMore(false);
         }
     };
 
@@ -63,9 +108,9 @@ const Sales = () => {
 
         try {
             await api.deleteSale(saleToDelete.id);
-            // Reload only sales list
-            const salesData = await api.getSales();
-            setSales(Array.isArray(salesData) ? salesData : []);
+            // Invalidate cached sales so hook refetches and updates persisted cache
+            await queryClient.invalidateQueries(['sales']);
+            showSuccess('Venta eliminada exitosamente');
             showSuccess('Venta eliminada exitosamente');
         } catch (error) {
             console.error('Failed to delete sale', error);
@@ -103,8 +148,8 @@ const Sales = () => {
             }
 
             resetForm();
-            const salesData = await api.getSales();
-            setSales(Array.isArray(salesData) ? salesData : []);
+            setSalesNextCursor(null);
+            await loadMoreSales(null, true);
         } catch (error) {
             console.error('Failed to save sale', error);
             showError('Error al guardar venta');
@@ -205,11 +250,12 @@ const Sales = () => {
             {/* List */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
                 <h3 className="text-sm font-medium text-brand-gray p-4 border-b uppercase">Historial Reciente</h3>
-                {loading ? (
-                    <div className="p-8 text-center text-brand-gray">Cargando...</div>
+                {(ventasLoading && sales.length === 0) ? (
+                    <TableSkeleton columns={6} rows={4} />
                 ) : sales.length === 0 ? (
                     <div className="p-8 text-center text-brand-gray">No hay ventas registradas hoy.</div>
                 ) : (
+                    <>
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left min-w-[600px]">
                             <thead className="bg-gray-50 text-gray-500 border-b">
@@ -259,6 +305,19 @@ const Sales = () => {
                             </tbody>
                         </table>
                     </div>
+                    {sales.length < salesTotal && (
+                        <div className="p-4 text-center">
+                            <button
+                                className="px-6 py-2 rounded bg-brand-gold text-white font-medium hover:bg-opacity-90 transition-colors"
+                                onClick={() => loadMoreSales(salesOffset)}
+                                disabled={loadingMore}
+                            >
+                                {loadingMore ? 'Cargando...' : 'Cargar más'}
+                            </button>
+                            <div className="text-xs text-gray-400 mt-2">Mostrando {sales.length} de {salesTotal}</div>
+                        </div>
+                    )}
+                    </>
                 )}
             </div>
 
