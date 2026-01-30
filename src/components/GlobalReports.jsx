@@ -12,6 +12,7 @@ import {
     ArrowDownRight,
     Building2
 } from 'lucide-react';
+import TableSkeleton from './TableSkeleton.jsx';
 
 const GlobalReports = () => {
     const { toast } = useToast();
@@ -69,8 +70,8 @@ const GlobalReports = () => {
 
     if (loading && !summary) {
         return (
-            <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange"></div>
+            <div className="p-4">
+                <TableSkeleton columns={4} rows={3} />
             </div>
         );
     }
