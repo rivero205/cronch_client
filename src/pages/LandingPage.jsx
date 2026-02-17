@@ -1,29 +1,24 @@
 /**
- * CRUNCH Landing Page
+ * CRONCH Landing Page
  * 
- * Archivo único con toda la landing page.
- * Copia este archivo a tu carpeta client/src/pages/
- * 
- * Dependencias necesarias (si no las tienes):
- * npm install framer-motion lucide-react
- * 
- * Uso en tu router:
- * import LandingPage from './pages/LandingPage';
- * <Route path="/" element={<LandingPage />} />
+ * Rewritten to reflect real product capabilities.
+ * Copy based on actual system analysis: production tracking,
+ * sales, expenses, financial reports, RBAC, multi-business.
  */
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo_compañia.png';
-import { 
-  ChefHat, Menu, X, ChevronRight, Play, BarChart3, Package, 
-  ShoppingCart, Receipt, FileText, TrendingUp, Clock, Shield,
-  Star, Quote, Check, Sparkles, ArrowRight, Zap, 
-  Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin
+import {
+  Menu, X, ChevronRight, BarChart3, Package,
+  ShoppingCart, Receipt, FileText, TrendingUp, Shield,
+  Check, ArrowRight, Zap, Users, Bell, Building2,
+  Mail, Phone, MapPin, Store, Scissors, Coffee,
+  Hammer, ShoppingBag, Palette
 } from 'lucide-react';
+
 // ========== ESTILOS INLINE ==========
 const styles = {
-  // Colores del tema
   colors: {
     primary: '#f97316',
     primaryDark: '#ea580c',
@@ -34,55 +29,42 @@ const styles = {
     border: '#e2e8f0',
     card: '#ffffff',
   },
-  
-  // Gradientes
   gradients: {
     primary: 'linear-gradient(135deg, #f97316, #fbbf24)',
     hero: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fff7ed 100%)',
     dark: 'linear-gradient(135deg, #0f172a, #1e293b)',
   }
 };
+
 // ========== DATOS ==========
 const features = [
-  { icon: BarChart3, title: 'Dashboard Interactivo', description: 'Métricas clave (ventas, margen, productos top) en una vista clara y accionable.', color: '#3b82f6' },
-  { icon: Package, title: 'Gestión de Producción', description: 'Registra lotes, calcula costo de producción y ajusta inventarios automáticamente.', color: '#f97316' },
-  { icon: ShoppingCart, title: 'Control de Ventas', description: 'Registro rápido de ventas con histórico por producto y soporte para puntos de venta móviles.', color: '#22c55e' },
-  { icon: Receipt, title: 'Administración de Gastos', description: 'Control de insumos y costos operativos para entender verdaderas utilidades.', color: '#a855f7' },
-  { icon: FileText, title: 'Reportes Financieros', description: 'Reportes listos para tomar decisiones: ventas, gastos, rentabilidad y tendencias.', color: '#f59e0b' },
-  { icon: TrendingUp, title: 'Análisis de Tendencias', description: 'Detecta picos, productos estacionales y ventanas para promociones.', color: '#ef4444' },
-  { icon: Clock, title: 'Historial Completo', description: 'Accede a registros de producción, ventas y ajustes con orden consistente y paginación eficiente.', color: '#6366f1' },
-  { icon: Shield, title: 'Datos Seguros', description: 'Roles, permisos y datos protegidos; cumple con buenas prácticas de seguridad.', color: '#14b8a6' },
+  { icon: BarChart3, title: 'Dashboard en Tiempo Real', description: 'Visualiza ventas, gastos, utilidad y producción del día, la semana o el mes en una sola pantalla.', color: '#3b82f6' },
+  { icon: Package, title: 'Registro de Producción', description: 'Registra cada lote con producto, cantidad y costo unitario. Sabrás exactamente cuánto te cuesta producir.', color: '#f97316' },
+  { icon: ShoppingCart, title: 'Control de Ventas Diarias', description: 'Registra cada venta con producto, cantidad y precio. Consulta históricos con filtros por fecha.', color: '#22c55e' },
+  { icon: Receipt, title: 'Gastos Operativos', description: 'Registra insumos y costos operativos. Filtra por fecha y ve el impacto real en tu utilidad.', color: '#a855f7' },
+  { icon: FileText, title: '5 Tipos de Reportes', description: 'Semanal, mensual, rentabilidad por producto, tendencia diaria y producto más rentable. Listos para descargar.', color: '#f59e0b' },
+  { icon: Users, title: 'Multi-usuario con Roles', description: 'Admins gestionan el equipo, aprueban usuarios y supervisan. Empleados registran la operación diaria.', color: '#6366f1' },
+  { icon: Bell, title: 'Recordatorio de Cierre', description: 'Notificación automática para que nunca olvides registrar la producción y ventas del día.', color: '#ef4444' },
+  { icon: Shield, title: 'Datos Aislados por Negocio', description: 'Cada negocio ve solo su información. Seguridad a nivel de base de datos con permisos por rol.', color: '#14b8a6' },
 ];
-const testimonials = [
-  { name: 'María González', role: 'Dueña de Cafetería', content: 'CRUNCH transformó mi negocio. Ahora sé exactamente cuánto gano cada día.', avatar: 'MG' },
-  { name: 'Carlos Ramírez', role: 'Chef Ejecutivo', content: 'El control de producción es increíble. Ya no tenemos desperdicios.', avatar: 'CR' },
-  { name: 'Ana Martínez', role: 'Administradora', content: 'Los reportes financieros me ahorran horas de trabajo cada semana.', avatar: 'AM' },
-  { name: 'Roberto Silva', role: 'Food Truck Owner', content: 'Desde que uso CRUNCH, mis ganancias aumentaron un 30%.', avatar: 'RS' },
+
+const targetUsers = [
+  { icon: Coffee, title: 'Cafeterías y Panaderías', description: 'Controla costos de producción y márgenes reales por producto.' },
+  { icon: Scissors, title: 'Talleres de Confección', description: 'Registra lo que produces, lo que vendes y lo que gastas en materiales.' },
+  { icon: Palette, title: 'Manufactura Artesanal', description: 'Sabe cuánto te cuesta cada pieza y cuál te deja más ganancia.' },
+  { icon: Store, title: 'Tiendas de Productos Propios', description: 'Lleva el control de inventario, ventas y gastos en un solo lugar.' },
+  { icon: Hammer, title: 'Talleres y Microempresas', description: 'Deja el cuaderno y ten reportes financieros automáticos.' },
+  { icon: ShoppingBag, title: 'Food Trucks y Negocios Móviles', description: 'Accede desde cualquier dispositivo. Funciona como app instalable (PWA).' },
 ];
-const plans = [
-  { 
-    name: 'Básico', description: 'Perfecto para empezar', price: 'Gratis', period: '',
-    features: ['Hasta 50 productos', 'Control de producción básico', 'Registro de ventas', 'Reportes mensuales', 'Soporte por email'],
-    cta: 'Comenzar Gratis', popular: false 
-  },
-  { 
-    name: 'Profesional', description: 'Para negocios en crecimiento', price: '$29', period: '/mes',
-    features: ['Productos ilimitados', 'Control avanzado', 'Gestión de gastos completa', 'Reportes personalizados', 'Dashboard en tiempo real', 'Múltiples usuarios', 'Soporte prioritario'],
-    cta: 'Comenzar Prueba', popular: true 
-  },
-  { 
-    name: 'Empresarial', description: 'Para grandes operaciones', price: '$99', period: '/mes',
-    features: ['Todo del plan Profesional', 'Multi-sucursales', 'API de integración', 'Reportes avanzados con IA', 'Gestor de cuenta dedicado', 'Capacitación personalizada'],
-    cta: 'Contactar Ventas', popular: false 
-  },
-];
+
 const navLinks = [
   { label: 'Características', href: '#features' },
   { label: 'Cómo Funciona', href: '#how-it-works' },
-  { label: 'Precios', href: '#pricing' },
-  { label: 'Testimonios', href: '#testimonials' },
+  { label: 'Para Quién', href: '#target-users' },
 ];
+
 // ========== COMPONENTES ==========
+
 // Navbar
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -113,8 +95,8 @@ const Navbar = () => {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '80px' }}>
           {/* Logo */}
           <a href="#" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
-            <img src={logo} alt="Crunch" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
-            <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: styles.colors.dark }}>CRUNCH</span>
+            <img src={logo} alt="Cronch" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
+            <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: styles.colors.dark }}>CRONCH</span>
           </a>
           {/* Desktop Navigation */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }} className="desktop-nav">
@@ -122,10 +104,10 @@ const Navbar = () => {
               <a
                 key={link.label}
                 href={link.href}
-                style={{ 
-                  color: styles.colors.muted, 
-                  textDecoration: 'none', 
-                  fontSize: '0.9rem', 
+                style={{
+                  color: styles.colors.muted,
+                  textDecoration: 'none',
+                  fontSize: '0.9rem',
                   fontWeight: 500,
                   transition: 'color 0.2s'
                 }}
@@ -137,23 +119,23 @@ const Navbar = () => {
             ))}
           </div>
           {/* CTA Buttons */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }} className="desktop-nav">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }} className="desktop-nav">
             <Link to="/login" style={{ textDecoration: 'none' }}>
-              <button style={{ 
-                background: 'transparent', border: 'none', color: styles.colors.muted, 
-                fontSize: '0.9rem', fontWeight: 500, cursor: 'pointer' 
+              <button style={{
+                background: 'transparent', border: 'none', color: styles.colors.muted,
+                fontSize: '0.9rem', fontWeight: 500, cursor: 'pointer'
               }}>
                 Iniciar Sesión
               </button>
             </Link>
             <Link to="/register" style={{ textDecoration: 'none' }}>
-              <button style={{ 
-                background: styles.gradients.primary, color: 'white', 
+              <button style={{
+                background: styles.gradients.primary, color: 'white',
                 border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px',
                 fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer',
                 boxShadow: '0 4px 15px rgba(249, 115, 22, 0.3)'
               }}>
-                Crear Cuenta
+                Crear Cuenta Gratis
               </button>
             </Link>
           </div>
@@ -181,27 +163,19 @@ const Navbar = () => {
                   {link.label}
                 </a>
               ))}
-              <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} style={{ textDecoration: 'none' }}>
-                <button style={{ 
-                  background: 'transparent', border: 'none', color: styles.colors.muted, 
-                  fontSize: '1rem', fontWeight: 600, cursor: 'pointer', textAlign: 'left', padding: '0.6rem 0'
-                }}>
-                  Iniciar Sesión
-                </button>
-              </Link>
               <Link to="/register" onClick={() => setIsMobileMenuOpen(false)} style={{ textDecoration: 'none' }}>
-                <button style={{ 
-                  background: styles.gradients.primary, color: 'white', 
+                <button style={{
+                  background: styles.gradients.primary, color: 'white',
                   border: 'none', padding: '0.8rem', borderRadius: '8px',
                   fontWeight: 600, cursor: 'pointer', width: '100%'
                 }}>
-                  Crear Cuenta
+                  Crear Cuenta Gratis
                 </button>
               </Link>
               <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} style={{ textDecoration: 'none', width: '100%' }}>
                 <button style={{
                   background: 'white', color: styles.colors.primary, border: `1px solid ${styles.colors.primary}`,
-                  padding: '0.8rem', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', width: '100%', marginTop: '0.5rem',
+                  padding: '0.8rem', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', width: '100%',
                   display: 'block'
                 }}>
                   Iniciar Sesión
@@ -214,10 +188,11 @@ const Navbar = () => {
     </motion.nav>
   );
 };
+
 // Hero Section
 const HeroSection = () => (
-  <section style={{ 
-    minHeight: '100vh', 
+  <section style={{
+    minHeight: '100vh',
     background: styles.gradients.hero,
     position: 'relative',
     overflow: 'hidden',
@@ -227,7 +202,7 @@ const HeroSection = () => (
     {/* Background blobs */}
     <div style={{ position: 'absolute', top: '-100px', right: '-100px', width: '400px', height: '400px', background: styles.colors.primary, opacity: 0.1, borderRadius: '50%', filter: 'blur(80px)' }} />
     <div style={{ position: 'absolute', bottom: '0', left: '-100px', width: '300px', height: '300px', background: styles.colors.secondary, opacity: 0.1, borderRadius: '50%', filter: 'blur(80px)' }} />
-    
+
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem', position: 'relative', zIndex: 10 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'center' }}>
         {/* Left content */}
@@ -242,44 +217,47 @@ const HeroSection = () => (
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            style={{ 
+            style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-              background: 'rgba(249, 115, 22, 0.1)', 
+              background: 'rgba(249, 115, 22, 0.1)',
               padding: '0.5rem 1rem', borderRadius: '50px',
               marginBottom: '1.5rem', fontSize: '0.9rem', color: styles.colors.primary, fontWeight: 500
             }}
           >
             <span style={{ width: '8px', height: '8px', background: styles.colors.primary, borderRadius: '50%', animation: 'pulse 2s infinite' }} />
-            Sistema de Gestión #1 en Gastronomía
+            Gestión simple para negocios que producen y venden
           </motion.div>
+
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            style={{ 
-              fontSize: 'clamp(2rem, 5vw, 3.5rem)', 
-              fontWeight: 800, 
-              lineHeight: 1.2, 
+            style={{
+              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+              fontWeight: 800,
+              lineHeight: 1.2,
               marginBottom: '1.5rem',
-              color: styles.colors.dark 
+              color: styles.colors.dark
             }}
           >
-            Gestiona tu negocio de{' '}
+            Deja de adivinar cuánto ganas.{' '}
             <span style={{ background: styles.gradients.primary, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              alimentos
-            </span>{' '}
-            como un profesional
+              Empieza a saberlo.
+            </span>
           </motion.h1>
+
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
             style={{ fontSize: '1.1rem', color: styles.colors.muted, marginBottom: '2rem', lineHeight: 1.7 }}
           >
-            CRUNCH te permite controlar producción, ventas, gastos y generar reportes 
-            financieros en tiempo real. Todo en una sola plataforma intuitiva.
+            Registra tu producción, ventas y gastos diarios. CRONCH calcula
+            automáticamente tu ganancia real por producto y genera reportes
+            financieros listos para tomar decisiones.
           </motion.p>
-            <motion.div
+
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
@@ -287,36 +265,56 @@ const HeroSection = () => (
             className="hero-buttons"
           >
             <Link to="/register" style={{ textDecoration: 'none' }}>
-              <button style={{ 
-                background: styles.gradients.primary, color: 'white', 
+              <button style={{
+                background: styles.gradients.primary, color: 'white',
                 border: 'none', padding: '1rem 2rem', borderRadius: '10px',
                 fontSize: '1rem', fontWeight: 600, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: '0.5rem',
                 boxShadow: '0 10px 30px rgba(249, 115, 22, 0.3)',
                 transition: 'transform 0.2s, box-shadow 0.2s'
               }}
-              onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 15px 40px rgba(249, 115, 22, 0.4)'; }}
-              onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 30px rgba(249, 115, 22, 0.3)'; }}
+                onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 15px 40px rgba(249, 115, 22, 0.4)'; }}
+                onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 30px rgba(249, 115, 22, 0.3)'; }}
               >
-                Crear Cuenta
+                Crea tu Cuenta Gratis
                 <ChevronRight size={18} />
               </button>
             </Link>
+            <a href="#how-it-works" style={{ textDecoration: 'none' }}>
+              <button style={{
+                background: 'white', color: styles.colors.dark,
+                border: `1px solid ${styles.colors.border}`, padding: '1rem 2rem', borderRadius: '10px',
+                fontSize: '1rem', fontWeight: 600, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                transition: 'transform 0.2s'
+              }}
+                onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              >
+                Ver cómo funciona
+              </button>
+            </a>
           </motion.div>
+
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7 }}
             style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginTop: '3rem', flexWrap: 'wrap' }}
           >
-            {[{ num: '500+', label: 'Negocios activos' }, { num: '98%', label: 'Satisfacción' }, { num: '24/7', label: 'Soporte' }].map((stat, i) => (
-              <div key={i} style={{ textAlign: 'center' }}>
-                <p style={{ fontSize: '1.8rem', fontWeight: 'bold', color: styles.colors.dark }}>{stat.num}</p>
-                <p style={{ fontSize: '0.85rem', color: styles.colors.muted }}>{stat.label}</p>
+            {[
+              { icon: '✓', label: '100% Gratuito' },
+              { icon: '✓', label: 'Listo en 2 minutos' },
+              { icon: '✓', label: 'Funciona desde el celular' }
+            ].map((item, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <span style={{ color: styles.colors.primary, fontWeight: 700 }}>{item.icon}</span>
+                <span style={{ fontSize: '0.9rem', color: styles.colors.muted }}>{item.label}</span>
               </div>
             ))}
           </motion.div>
         </motion.div>
+
         {/* Right - Dashboard mockup */}
         <motion.div
           initial={{ opacity: 0, x: 50 }}
@@ -324,18 +322,18 @@ const HeroSection = () => (
           transition={{ duration: 0.8, delay: 0.3 }}
           style={{ position: 'relative' }}
         >
-          <div style={{ 
-            position: 'relative', 
-            background: 'white', 
-            borderRadius: '20px', 
+          <div style={{
+            position: 'relative',
+            background: 'white',
+            borderRadius: '20px',
             padding: '1rem',
             boxShadow: '0 25px 80px rgba(0,0,0,0.15)',
             border: `1px solid ${styles.colors.border}`
           }}>
             {/* Dashboard Preview */}
-            <div style={{ 
-              background: 'linear-gradient(135deg, #f8fafc, #f1f5f9)', 
-              borderRadius: '12px', 
+            <div style={{
+              background: 'linear-gradient(135deg, #f8fafc, #f1f5f9)',
+              borderRadius: '12px',
               padding: '1.5rem',
               minHeight: '350px'
             }}>
@@ -343,7 +341,7 @@ const HeroSection = () => (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <div>
                   <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: styles.colors.dark }}>Dashboard</h3>
-                  <p style={{ fontSize: '0.8rem', color: styles.colors.muted }}>Resumen del día</p>
+                  <p style={{ fontSize: '0.8rem', color: styles.colors.muted }}>Resumen de esta semana</p>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   {['#f97316', '#22c55e', '#3b82f6'].map((c, i) => (
@@ -351,15 +349,15 @@ const HeroSection = () => (
                   ))}
                 </div>
               </div>
-              
+
               {/* Stats Cards */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
                 {[
                   { label: 'Ventas', value: '$2,450', color: '#22c55e', change: '+12%' },
-                  { label: 'Producción', value: '156 uds', color: '#3b82f6', change: '+8%' },
+                  { label: 'Utilidad', value: '$1,560', color: '#3b82f6', change: '+18%' },
                   { label: 'Gastos', value: '$890', color: '#f97316', change: '-5%' }
                 ].map((stat, i) => (
-                  <div key={i} style={{ 
+                  <div key={i} style={{
                     background: 'white', padding: '1rem', borderRadius: '10px',
                     boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
                   }}>
@@ -369,20 +367,20 @@ const HeroSection = () => (
                   </div>
                 ))}
               </div>
-              
+
               {/* Chart placeholder */}
               <div style={{ background: 'white', borderRadius: '10px', padding: '1rem', height: '120px', display: 'flex', alignItems: 'flex-end', gap: '0.5rem' }}>
                 {[40, 65, 45, 80, 55, 90, 70, 85, 60, 95, 75, 88].map((h, i) => (
-                  <motion.div 
+                  <motion.div
                     key={i}
                     initial={{ height: 0 }}
                     animate={{ height: `${h}%` }}
                     transition={{ delay: 0.5 + i * 0.05, duration: 0.5 }}
-                    style={{ 
-                      flex: 1, 
+                    style={{
+                      flex: 1,
                       background: i === 11 ? styles.gradients.primary : '#e2e8f0',
                       borderRadius: '4px'
-                    }} 
+                    }}
                   />
                 ))}
               </div>
@@ -393,7 +391,7 @@ const HeroSection = () => (
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.8 }}
-            style={{ 
+            style={{
               position: 'absolute', bottom: '-20px', left: '-20px',
               background: 'white', padding: '1rem', borderRadius: '12px',
               boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
@@ -404,8 +402,8 @@ const HeroSection = () => (
               <TrendingUp size={20} color="#22c55e" />
             </div>
             <div>
-              <p style={{ fontSize: '0.8rem', fontWeight: 500, color: styles.colors.dark }}>Ventas del mes</p>
-              <p style={{ fontSize: '1rem', fontWeight: 700, color: '#22c55e' }}>+24.5%</p>
+              <p style={{ fontSize: '0.8rem', fontWeight: 500, color: styles.colors.dark }}>Producto más rentable</p>
+              <p style={{ fontSize: '1rem', fontWeight: 700, color: '#22c55e' }}>Pan de Bono +42%</p>
             </div>
           </motion.div>
         </motion.div>
@@ -419,6 +417,7 @@ const HeroSection = () => (
     </div>
   </section>
 );
+
 // Features Section
 const FeaturesSection = () => (
   <section id="features" style={{ padding: '6rem 0', background: 'white' }}>
@@ -429,20 +428,19 @@ const FeaturesSection = () => (
         viewport={{ once: true }}
         style={{ textAlign: 'center', marginBottom: '4rem' }}
       >
-        <span style={{ 
-          display: 'inline-block', background: 'rgba(249, 115, 22, 0.1)', 
+        <span style={{
+          display: 'inline-block', background: 'rgba(249, 115, 22, 0.1)',
           padding: '0.5rem 1rem', borderRadius: '50px', marginBottom: '1rem',
           fontSize: '0.9rem', color: styles.colors.primary, fontWeight: 500
         }}>
-          Características
+          Características Reales
         </span>
         <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 700, color: styles.colors.dark, marginBottom: '1rem' }}>
-          Todo lo que necesitas para{' '}
-          <span style={{ background: styles.gradients.primary, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>gestionar</span>{' '}
-          tu negocio
+          Todo lo que necesitas para saber{' '}
+          <span style={{ background: styles.gradients.primary, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>cuánto ganas</span>
         </h2>
         <p style={{ fontSize: '1.1rem', color: styles.colors.muted, maxWidth: '600px', margin: '0 auto' }}>
-          Herramientas potentes y fáciles de usar diseñadas específicamente para negocios de alimentos y bebidas.
+          Sin funciones de relleno. Cada herramienta existe para resolver un problema real de tu operación diaria.
         </p>
       </motion.div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
@@ -453,31 +451,30 @@ const FeaturesSection = () => (
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1 }}
-            style={{ 
+            style={{
               background: 'white', padding: '1.5rem', borderRadius: '16px',
               border: `1px solid ${styles.colors.border}`,
               transition: 'all 0.3s',
-              cursor: 'pointer'
+              cursor: 'default'
             }}
-            onMouseOver={(e) => { 
-              e.currentTarget.style.transform = 'translateY(-5px)'; 
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-5px)';
               e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.1)';
               e.currentTarget.style.borderColor = styles.colors.primary;
             }}
-            onMouseOut={(e) => { 
-              e.currentTarget.style.transform = 'translateY(0)'; 
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
               e.currentTarget.style.boxShadow = 'none';
               e.currentTarget.style.borderColor = styles.colors.border;
             }}
           >
-            <div style={{ 
-              width: '50px', height: '50px', borderRadius: '12px', 
+            <div style={{
+              width: '50px', height: '50px', borderRadius: '12px',
               background: feature.color, marginBottom: '1rem',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               boxShadow: `0 8px 20px ${feature.color}40`
             }}>
-              {/* Use ChefHat icon as visual anchor for product features */}
-              <ChefHat size={24} color="white" />
+              <feature.icon size={24} color="white" />
             </div>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: styles.colors.dark, marginBottom: '0.5rem' }}>{feature.title}</h3>
             <p style={{ fontSize: '0.9rem', color: styles.colors.muted, lineHeight: 1.6 }}>{feature.description}</p>
@@ -487,6 +484,7 @@ const FeaturesSection = () => (
     </div>
   </section>
 );
+
 // How It Works Section
 const HowItWorksSection = () => (
   <section id="how-it-works" style={{ padding: '6rem 0', background: '#fafafa' }}>
@@ -497,37 +495,38 @@ const HowItWorksSection = () => (
         viewport={{ once: true }}
         style={{ textAlign: 'center', marginBottom: '4rem' }}
       >
-        <span style={{ 
-          display: 'inline-block', background: 'rgba(249, 115, 22, 0.1)', 
+        <span style={{
+          display: 'inline-block', background: 'rgba(249, 115, 22, 0.1)',
           padding: '0.5rem 1rem', borderRadius: '50px', marginBottom: '1rem',
           fontSize: '0.9rem', color: styles.colors.primary, fontWeight: 500
         }}>
           Cómo Funciona
         </span>
         <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 700, color: styles.colors.dark }}>
-          Simple como{' '}
-          <span style={{ background: styles.gradients.primary, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>1, 2, 3</span>
+          De registrar en cuaderno a{' '}
+          <span style={{ background: styles.gradients.primary, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>reportes automáticos</span>
         </h2>
       </motion.div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '4rem' }}>
         {[
-          { num: '01', title: 'Registra tu producción', desc: 'Ingresa diariamente lo que produces. El sistema calcula automáticamente inventarios y costos.' },
-          { num: '02', title: 'Registra tus ventas', desc: 'Lleva el control de cada venta realizada. Visualiza tendencias y productos más vendidos.' },
-          { num: '03', title: 'Obtén reportes automáticos', desc: 'Genera reportes financieros detallados con un clic. Toma decisiones basadas en datos reales.' },
+          { num: '01', icon: Building2, title: 'Crea tu cuenta y selecciona tu negocio', desc: 'Regístrate gratis, elige el negocio al que perteneces y espera la aprobación de tu administrador. En minutos estás operando.' },
+          { num: '02', icon: Package, title: 'Registra producción, ventas y gastos cada día', desc: 'Ingresa lo que produjiste (con costo unitario), lo que vendiste (con precio) y tus gastos operativos. Toma menos de 5 minutos.' },
+          { num: '03', icon: FileText, title: 'Consulta tus reportes de rentabilidad', desc: 'CRONCH calcula tu utilidad semanal, mensual, por producto y la tendencia diaria. Descarga reportes listos para tomar decisiones.' },
+          { num: '04', icon: Users, title: 'Tu equipo opera, tú supervisas', desc: 'Como admin, apruebas usuarios, asignas roles y ves los reportes consolidados. Tu equipo solo registra la operación diaria.' },
         ].map((step, i) => (
           <motion.div
             key={step.num}
             initial={{ opacity: 0, x: i % 2 === 0 ? -50 : 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            style={{ 
+            style={{
               display: 'flex', alignItems: 'center', gap: '2rem',
               flexDirection: i % 2 === 1 ? 'row-reverse' : 'row',
               flexWrap: 'wrap', justifyContent: 'center'
             }}
           >
             <div style={{ flex: '1 1 300px', textAlign: i % 2 === 1 ? 'right' : 'left' }} className="step-text">
-              <div style={{ 
+              <div style={{
                 display: 'inline-flex', width: '60px', height: '60px', borderRadius: '16px',
                 background: styles.gradients.primary, alignItems: 'center', justifyContent: 'center',
                 fontSize: '1.5rem', fontWeight: 700, color: 'white', marginBottom: '1rem',
@@ -538,18 +537,16 @@ const HowItWorksSection = () => (
               <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: styles.colors.dark, marginBottom: '0.5rem' }}>{step.title}</h3>
               <p style={{ fontSize: '1rem', color: styles.colors.muted, lineHeight: 1.7 }}>{step.desc}</p>
             </div>
-            <div style={{ 
-              flex: '1 1 300px', background: 'white', borderRadius: '20px', 
+            <div style={{
+              flex: '1 1 300px', background: 'white', borderRadius: '20px',
               padding: '2rem', boxShadow: '0 20px 50px rgba(0,0,0,0.1)',
               border: `1px solid ${styles.colors.border}`
             }}>
-              <div style={{ 
-                height: '200px', background: 'linear-gradient(135deg, #f8fafc, #f1f5f9)', 
+              <div style={{
+                height: '200px', background: 'linear-gradient(135deg, #f8fafc, #f1f5f9)',
                 borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}>
-                {step.num === '01' && <Package size={60} color={styles.colors.primary} />}
-                {step.num === '02' && <ShoppingCart size={60} color={styles.colors.primary} />}
-                {step.num === '03' && <FileText size={60} color={styles.colors.primary} />}
+                <step.icon size={60} color={styles.colors.primary} />
               </div>
             </div>
           </motion.div>
@@ -558,9 +555,10 @@ const HowItWorksSection = () => (
     </div>
   </section>
 );
-// Testimonials Section
-const TestimonialsSection = () => (
-  <section id="testimonials" style={{ padding: '6rem 0', background: 'white' }}>
+
+// Target Users Section (replaces fake testimonials)
+const TargetUsersSection = () => (
+  <section id="target-users" style={{ padding: '6rem 0', background: 'white' }}>
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem' }}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -568,54 +566,48 @@ const TestimonialsSection = () => (
         viewport={{ once: true }}
         style={{ textAlign: 'center', marginBottom: '4rem' }}
       >
-        <span style={{ 
-          display: 'inline-block', background: 'rgba(249, 115, 22, 0.1)', 
+        <span style={{
+          display: 'inline-block', background: 'rgba(249, 115, 22, 0.1)',
           padding: '0.5rem 1rem', borderRadius: '50px', marginBottom: '1rem',
           fontSize: '0.9rem', color: styles.colors.primary, fontWeight: 500
         }}>
-          Testimonios
+          ¿Para Quién?
         </span>
-        <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 700, color: styles.colors.dark }}>
-          Lo que dicen nuestros{' '}
-          <span style={{ background: styles.gradients.primary, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>clientes</span>
+        <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 700, color: styles.colors.dark, marginBottom: '1rem' }}>
+          CRONCH es para negocios que{' '}
+          <span style={{ background: styles.gradients.primary, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>producen y venden</span>
         </h2>
+        <p style={{ fontSize: '1.1rem', color: styles.colors.muted, maxWidth: '600px', margin: '0 auto' }}>
+          Si tu negocio fabrica productos, los vende y necesita saber cuánto gana realmente, CRONCH es para ti.
+        </p>
       </motion.div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
-        {testimonials.map((t, i) => (
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+        {targetUsers.map((user, i) => (
           <motion.div
-            key={t.name}
+            key={user.title}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-            style={{ 
+            transition={{ delay: i * 0.08 }}
+            style={{
               background: 'white', padding: '1.5rem', borderRadius: '16px',
               border: `1px solid ${styles.colors.border}`,
+              display: 'flex', alignItems: 'flex-start', gap: '1rem',
               transition: 'all 0.3s'
             }}
-            onMouseOver={(e) => { e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.1)'; }}
-            onMouseOut={(e) => { e.currentTarget.style.boxShadow = 'none'; }}
+            onMouseOver={(e) => { e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.08)'; e.currentTarget.style.borderColor = styles.colors.primary; }}
+            onMouseOut={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = styles.colors.border; }}
           >
-            <Quote size={30} color="#f9731620" style={{ marginBottom: '1rem' }} />
-            <div style={{ display: 'flex', gap: '4px', marginBottom: '1rem' }}>
-              {[...Array(5)].map((_, j) => <Star key={j} size={16} fill="#fbbf24" color="#fbbf24" />)}
+            <div style={{
+              minWidth: '50px', height: '50px', borderRadius: '12px',
+              background: 'rgba(249, 115, 22, 0.1)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <user.icon size={24} color={styles.colors.primary} />
             </div>
-            <p style={{ fontSize: '0.95rem', color: styles.colors.muted, marginBottom: '1.5rem', lineHeight: 1.7, fontStyle: 'italic' }}>
-              "{t.content}"
-            </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div style={{ 
-                width: '45px', height: '45px', borderRadius: '50%', 
-                background: styles.gradients.primary,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '0.9rem', fontWeight: 600, color: 'white'
-              }}>
-                {t.avatar}
-              </div>
-              <div>
-                <p style={{ fontWeight: 600, color: styles.colors.dark }}>{t.name}</p>
-                <p style={{ fontSize: '0.85rem', color: styles.colors.muted }}>{t.role}</p>
-              </div>
+            <div>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 600, color: styles.colors.dark, marginBottom: '0.3rem' }}>{user.title}</h3>
+              <p style={{ fontSize: '0.9rem', color: styles.colors.muted, lineHeight: 1.6 }}>{user.description}</p>
             </div>
           </motion.div>
         ))}
@@ -623,120 +615,85 @@ const TestimonialsSection = () => (
     </div>
   </section>
 );
-// Pricing Section
-const PricingSection = () => (
-  <section id="pricing" style={{ padding: '6rem 0', background: '#fafafa' }}>
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem' }}>
+
+// Free CTA Section (replaces fake pricing)
+const FreeCTASection = () => (
+  <section style={{ padding: '5rem 0', background: '#fafafa' }}>
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '0 1.5rem', textAlign: 'center' }}>
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        style={{ textAlign: 'center', marginBottom: '4rem' }}
+        style={{
+          background: 'white', borderRadius: '24px', padding: '3rem 2rem',
+          border: `2px solid ${styles.colors.primary}`,
+          boxShadow: '0 25px 50px rgba(249, 115, 22, 0.1)',
+          position: 'relative', overflow: 'hidden'
+        }}
       >
-        <span style={{ 
-          display: 'inline-block', background: 'rgba(249, 115, 22, 0.1)', 
-          padding: '0.5rem 1rem', borderRadius: '50px', marginBottom: '1rem',
-          fontSize: '0.9rem', color: styles.colors.primary, fontWeight: 500
-        }}>
-          Precios
-        </span>
-        <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 700, color: styles.colors.dark }}>
-          Un plan para cada{' '}
-          <span style={{ background: styles.gradients.primary, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>negocio</span>
-        </h2>
-      </motion.div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', alignItems: 'stretch' }}>
-        {plans.map((plan, i) => (
-          <motion.div
-            key={plan.name}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-            style={{ 
-              background: 'white', padding: '2rem', borderRadius: '20px',
-              border: plan.popular ? `2px solid ${styles.colors.primary}` : `1px solid ${styles.colors.border}`,
-              boxShadow: plan.popular ? '0 25px 50px rgba(249, 115, 22, 0.15)' : 'none',
-              position: 'relative',
-              display: 'flex', flexDirection: 'column'
-            }}
-          >
-            {plan.popular && (
-              <div style={{ 
-                position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)',
-                background: styles.gradients.primary, padding: '0.4rem 1rem', borderRadius: '50px',
-                display: 'flex', alignItems: 'center', gap: '0.3rem',
-                fontSize: '0.8rem', fontWeight: 600, color: 'white'
-              }}>
-                <Sparkles size={14} /> Más Popular
+        <div style={{ position: 'absolute', top: '-30px', right: '-30px', width: '150px', height: '150px', background: styles.colors.primary, opacity: 0.05, borderRadius: '50%' }} />
+        <div style={{ position: 'relative', zIndex: 10 }}>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+            background: 'rgba(249, 115, 22, 0.1)', padding: '0.4rem 1rem',
+            borderRadius: '50px', fontSize: '0.85rem', color: styles.colors.primary,
+            fontWeight: 600, marginBottom: '1.5rem'
+          }}>
+            <Zap size={14} /> Sin planes, sin trucos
+          </div>
+          <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 800, color: styles.colors.dark, marginBottom: '0.5rem' }}>
+            CRONCH es{' '}
+            <span style={{ background: styles.gradients.primary, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>gratuito</span>
+          </h2>
+          <p style={{ fontSize: '1.1rem', color: styles.colors.muted, marginBottom: '2rem', lineHeight: 1.7, maxWidth: '500px', margin: '0 auto 2rem' }}>
+            Sin período de prueba. Sin límites artificiales. Crea tu cuenta y empieza a registrar tu operación hoy.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+            {['Productos ilimitados', 'Usuarios ilimitados', 'Reportes completos', 'Notificaciones'].map((text) => (
+              <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: styles.colors.muted }}>
+                <Check size={16} color={styles.colors.primary} />
+                <span style={{ fontSize: '0.9rem' }}>{text}</span>
               </div>
-            )}
-            <div style={{ marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.3rem', fontWeight: 700, color: styles.colors.dark }}>{plan.name}</h3>
-              <p style={{ fontSize: '0.9rem', color: styles.colors.muted }}>{plan.description}</p>
-            </div>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 800, color: styles.colors.dark }}>{plan.price}</span>
-              <span style={{ color: styles.colors.muted }}>{plan.period}</span>
-            </div>
-            <ul style={{ listStyle: 'none', padding: 0, marginBottom: '2rem', flex: 1 }}>
-              {plan.features.map((f) => (
-                <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                  <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'rgba(249, 115, 22, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Check size={12} color={styles.colors.primary} />
-                  </div>
-                  <span style={{ fontSize: '0.9rem', color: styles.colors.muted }}>{f}</span>
-                </li>
-              ))}
-            </ul>
-            <button style={{ 
-              width: '100%', padding: '1rem', borderRadius: '10px', border: 'none',
-              background: plan.popular ? styles.gradients.primary : styles.colors.dark,
-              color: 'white', fontSize: '1rem', fontWeight: 600, cursor: 'pointer',
-              boxShadow: plan.popular ? '0 10px 30px rgba(249, 115, 22, 0.3)' : 'none',
+            ))}
+          </div>
+          <Link to="/register" style={{ textDecoration: 'none' }}>
+            <button style={{
+              background: styles.gradients.primary, color: 'white',
+              border: 'none', padding: '1rem 2.5rem', borderRadius: '10px',
+              fontSize: '1.05rem', fontWeight: 600, cursor: 'pointer',
+              display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+              boxShadow: '0 10px 30px rgba(249, 115, 22, 0.3)',
               transition: 'transform 0.2s'
             }}
-            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-            onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+              onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
             >
-              {plan.cta}
+              Crear Cuenta Gratis <ArrowRight size={18} />
             </button>
-          </motion.div>
-        ))}
-      </div>
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginTop: '3rem', flexWrap: 'wrap' }}
-      >
-        {['Sin tarjeta de crédito', '14 días de prueba gratis', 'Cancela en cualquier momento'].map((text) => (
-          <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: styles.colors.muted }}>
-            <Check size={16} color={styles.colors.primary} />
-            <span style={{ fontSize: '0.9rem' }}>{text}</span>
-          </div>
-        ))}
+          </Link>
+        </div>
       </motion.div>
     </div>
   </section>
 );
+
 // CTA Section
 const CTASection = () => (
-  <section style={{ 
-    padding: '6rem 0', 
+  <section style={{
+    padding: '6rem 0',
     background: styles.gradients.primary,
     position: 'relative', overflow: 'hidden'
   }}>
     <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '300px', height: '300px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%', filter: 'blur(60px)' }} />
     <div style={{ position: 'absolute', bottom: '-50px', left: '-50px', width: '250px', height: '250px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%', filter: 'blur(60px)' }} />
-    
+
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '0 1.5rem', textAlign: 'center', position: 'relative', zIndex: 10 }}>
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
       >
-        <div style={{ 
+        <div style={{
           width: '70px', height: '70px', margin: '0 auto 1.5rem',
           background: 'rgba(255,255,255,0.2)', borderRadius: '16px',
           display: 'flex', alignItems: 'center', justifyContent: 'center'
@@ -744,38 +701,42 @@ const CTASection = () => (
           <Zap size={35} color="white" />
         </div>
         <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 700, color: 'white', marginBottom: '1rem' }}>
-          ¿Listo para transformar tu negocio?
+          ¿Sigues llevando tus cuentas en un cuaderno?
         </h2>
         <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.85)', marginBottom: '2rem', lineHeight: 1.7 }}>
-          Únete a más de 500 negocios que ya optimizaron sus operaciones con CRUNCH.
+          Cada día sin registro es un día sin saber si tu negocio está ganando o perdiendo.
+          Con CRONCH, en 5 minutos al día tienes tu operación bajo control.
         </p>
         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button style={{ 
-            background: 'white', color: styles.colors.primary, 
-            border: 'none', padding: '1rem 2rem', borderRadius: '10px',
-            fontSize: '1rem', fontWeight: 600, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', gap: '0.5rem',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
-          }}>
-            Comenzar Gratis <ArrowRight size={18} />
-          </button>
-          <a href="mailto:maicolviv695@gmail.com" style={{ textDecoration: 'none' }}>
-            <button style={{ 
-              background: 'transparent', color: 'white', 
+          <Link to="/register" style={{ textDecoration: 'none' }}>
+            <button style={{
+              background: 'white', color: styles.colors.primary,
+              border: 'none', padding: '1rem 2rem', borderRadius: '10px',
+              fontSize: '1rem', fontWeight: 600, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+            }}>
+              Crear Cuenta Gratis <ArrowRight size={18} />
+            </button>
+          </Link>
+          <a href="https://wa.me/573234389020?text=Hola,%20quiero%20saber%20más%20sobre%20Cronch" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+            <button style={{
+              background: 'transparent', color: 'white',
               border: '2px solid rgba(255,255,255,0.3)', padding: '1rem 2rem', borderRadius: '10px',
               fontSize: '1rem', fontWeight: 600, cursor: 'pointer'
             }}>
-              Contactar Ventas
+              Hablar por WhatsApp
             </button>
           </a>
         </div>
         <p style={{ marginTop: '2rem', fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)' }}>
-          ✓ Sin tarjeta de crédito &nbsp;&nbsp; ✓ Configuración en 5 minutos &nbsp;&nbsp; ✓ Soporte 24/7
+          ✓ Gratis para siempre &nbsp;&nbsp; ✓ Sin tarjeta de crédito &nbsp;&nbsp; ✓ Listo en 2 minutos
         </p>
       </motion.div>
     </div>
   </section>
 );
+
 // Footer
 const Footer = () => (
   <footer style={{ background: styles.colors.dark, color: 'white', padding: '4rem 0 2rem' }}>
@@ -784,68 +745,102 @@ const Footer = () => (
         {/* Brand */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-            <img src={logo} alt="Crunch" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
-            <span style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>CRUNCH</span>
+            <img src={logo} alt="Cronch" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
+            <span style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>CRONCH</span>
           </div>
           <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', lineHeight: 1.7, marginBottom: '1.5rem' }}>
-            El sistema de gestión más completo para negocios de alimentos y bebidas.
+            Gestión simple para negocios que producen y venden. Registra, mide y crece.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Mail size={16} /> maicolviv695@gmail.com</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Phone size={16} /> +57 3234389020</div>
+            <a href="mailto:maicolviv695@gmail.com" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>
+              <Mail size={16} /> maicolviv695@gmail.com
+            </a>
+            <a href="https://wa.me/573234389020" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>
+              <Phone size={16} /> +57 323 438 9020
+            </a>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><MapPin size={16} /> Cartagena, Colombia</div>
           </div>
         </div>
         {/* Links */}
-        {[
-          { title: 'Producto', links: ['Características', 'Precios', 'Integraciones', 'API'] },
-          { title: 'Empresa', links: ['Sobre Nosotros', 'Blog', 'Carreras', 'Contacto'] },
-          { title: 'Legal', links: ['Términos', 'Privacidad', 'Cookies'] },
-        ].map((col) => (
-          <div key={col.title}>
-            <h4 style={{ fontWeight: 600, marginBottom: '1rem' }}>{col.title}</h4>
-            <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              {col.links.map((link) => (
-                <li key={link}>
-                  <a href="#" style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}
-                    onMouseOver={(e) => e.target.style.color = styles.colors.primary}
-                    onMouseOut={(e) => e.target.style.color = 'rgba(255,255,255,0.6)'}
-                  >
-                    {link}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        <div>
+          <h4 style={{ fontWeight: 600, marginBottom: '1rem' }}>Producto</h4>
+          <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {[
+              { label: 'Características', href: '#features' },
+              { label: 'Cómo Funciona', href: '#how-it-works' },
+              { label: 'Para Quién', href: '#target-users' },
+            ].map((link) => (
+              <li key={link.label}>
+                <a href={link.href} style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}
+                  onMouseOver={(e) => e.target.style.color = styles.colors.primary}
+                  onMouseOut={(e) => e.target.style.color = 'rgba(255,255,255,0.6)'}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h4 style={{ fontWeight: 600, marginBottom: '1rem' }}>Cuenta</h4>
+          <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {[
+              { label: 'Crear Cuenta', to: '/register' },
+              { label: 'Iniciar Sesión', to: '/login' },
+            ].map((link) => (
+              <li key={link.label}>
+                <Link to={link.to} style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}
+                  onMouseOver={(e) => e.target.style.color = styles.colors.primary}
+                  onMouseOut={(e) => e.target.style.color = 'rgba(255,255,255,0.6)'}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h4 style={{ fontWeight: 600, marginBottom: '1rem' }}>Soporte</h4>
+          <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <li>
+              <a href="https://wa.me/573234389020?text=Hola,%20necesito%20ayuda%20con%20Cronch" target="_blank" rel="noopener noreferrer"
+                style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}
+                onMouseOver={(e) => e.target.style.color = styles.colors.primary}
+                onMouseOut={(e) => e.target.style.color = 'rgba(255,255,255,0.6)'}
+              >
+                WhatsApp
+              </a>
+            </li>
+            <li>
+              <a href="mailto:maicolviv695@gmail.com"
+                style={{ color: 'rgba(255,255,255,0.6)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }}
+                onMouseOver={(e) => e.target.style.color = styles.colors.primary}
+                onMouseOut={(e) => e.target.style.color = 'rgba(255,255,255,0.6)'}
+              >
+                Email
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
       {/* Bottom */}
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem' }}>
-          © {new Date().getFullYear()} CRUNCH. Todos los derechos reservados.
+          © {new Date().getFullYear()} CRONCH. Todos los derechos reservados.
         </p>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          {[Facebook, Twitter, Instagram, Linkedin].map((Icon, i) => (
-            <a key={i} href="#" style={{ 
-              width: '40px', height: '40px', borderRadius: '50%', 
-              background: 'rgba(255,255,255,0.1)', 
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: 'rgba(255,255,255,0.6)', transition: 'all 0.2s'
-            }}
-            onMouseOver={(e) => { e.currentTarget.style.background = styles.colors.primary; e.currentTarget.style.color = 'white'; }}
-            onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}
-            >
-              <Icon size={18} />
-            </a>
-          ))}
-        </div>
+        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>
+          Hecho con 🧡 en Cartagena, Colombia
+        </p>
       </div>
     </div>
   </footer>
 );
+
 // ========== ESTILOS CSS (para responsive) ==========
 const ResponsiveStyles = () => (
   <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
@@ -866,9 +861,10 @@ const ResponsiveStyles = () => (
     
     html { scroll-behavior: smooth; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; }
   `}</style>
 );
+
 // ========== COMPONENTE PRINCIPAL ==========
 const LandingPage = () => {
   return (
@@ -878,8 +874,8 @@ const LandingPage = () => {
       <HeroSection />
       <FeaturesSection />
       <HowItWorksSection />
-      <TestimonialsSection />
-      <PricingSection />
+      <TargetUsersSection />
+      <FreeCTASection />
       <CTASection />
       <Footer />
     </div>
