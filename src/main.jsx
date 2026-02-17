@@ -12,11 +12,7 @@ createRoot(document.getElementById('root')).render(
     </QueryClientProvider>
   </StrictMode>,
 )
-// Hide initial splash added in index.html as soon as React is mounted.
-// Using setTimeout 0 to ensure render commit completed before the fade.
-setTimeout(() => {
-  try { if (window.__CRONCH_HIDE_SPLASH) window.__CRONCH_HIDE_SPLASH(); } catch (e) {}
-}, 0);
+
 // Register Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

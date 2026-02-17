@@ -302,14 +302,16 @@ const HeroSection = () => (
             transition={{ delay: 0.7 }}
             style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginTop: '3rem', flexWrap: 'wrap' }}
           >
-            {[
-              { icon: '✓', label: '100% Gratuito' },
-              { icon: '✓', label: 'Listo en 2 minutos' },
-              { icon: '✓', label: 'Funciona desde el celular' }
-            ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <span style={{ color: styles.colors.primary, fontWeight: 700 }}>{item.icon}</span>
-                <span style={{ fontSize: '0.9rem', color: styles.colors.muted }}>{item.label}</span>
+            {['100% Gratuito', 'Listo en 2 minutos', 'Funciona desde el celular'].map((label, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div style={{
+                  width: '20px', height: '20px', borderRadius: '50%',
+                  background: 'rgba(249, 115, 22, 0.1)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                }}>
+                  <Check size={12} color={styles.colors.primary} />
+                </div>
+                <span style={{ fontSize: '0.9rem', color: styles.colors.muted }}>{label}</span>
               </div>
             ))}
           </motion.div>
