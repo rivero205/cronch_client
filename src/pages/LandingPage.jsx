@@ -859,16 +859,16 @@ const ResponsiveStyles = () => (
       .hero-buttons { justify-content: flex-start !important; }
     }
     
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; overflow-x: hidden; max-width: 100vw; }
   `}</style>
 );
 
 // ========== COMPONENTE PRINCIPAL ==========
 const LandingPage = () => {
   return (
-    <div style={{ minHeight: '100vh', background: 'white' }}>
+    <div style={{ minHeight: '100vh', background: 'white', overflowX: 'hidden' }}>
       <ResponsiveStyles />
       <Navbar />
       <HeroSection />
