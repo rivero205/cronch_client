@@ -198,6 +198,15 @@ const Navbar = () => {
                   Crear Cuenta
                 </button>
               </Link>
+              <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} style={{ textDecoration: 'none', width: '100%' }}>
+                <button style={{
+                  background: 'white', color: styles.colors.primary, border: `1px solid ${styles.colors.primary}`,
+                  padding: '0.8rem', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', width: '100%', marginTop: '0.5rem',
+                  display: 'block'
+                }}>
+                  Iniciar Sesión
+                </button>
+              </Link>
             </motion.div>
           )}
         </AnimatePresence>

@@ -5,6 +5,7 @@ import { useToast } from '../contexts/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
 import { getTodayLocalDate, formatLocalDate, toInputDateFormat } from '../lib/dateUtils';
 import useProduccion from '../hooks/useProduccion';
+import useProductos from '../hooks/useProductos';
 import { useQueryClient } from '@tanstack/react-query';
 import TableSkeleton from '../components/TableSkeleton.jsx';
 
@@ -32,6 +33,7 @@ const Production = () => {
 
     const queryClient = useQueryClient();
     const { data: prodData, isLoading: prodLoading, refetch: refetchProd } = useProduccion({ limit: PRODUCTION_LIMIT });
+    const { data: productosData } = useProductos();
 
     useEffect(() => {
         if (prodData) {
@@ -42,11 +44,17 @@ const Production = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [prodData]);
 
+    useEffect(() => {
+        if (productosData) {
+            setProducts(Array.isArray(productosData) ? productosData : []);
+        }
+    }, [productosData]);
+
     const loadMoreProduction = async (cursor = null, replace = false) => {
         try {
             if (replace) {
                 await refetchProd();
-                api.getProducts().then(productsData => { setProducts(Array.isArray(productsData) ? productsData : []); }).catch(()=>{});
+                api.getProducts().then(productsData => { setProducts(Array.isArray(productsData) ? productsData : []); }).catch(() => { });
                 return;
             }
             setLoadingMore(true);
@@ -76,7 +84,7 @@ const Production = () => {
                         nextCursor: prodResp.nextCursor || null
                     };
                 });
-            } catch (e) {}
+            } catch (e) { }
 
         } catch (error) {
             console.error('Failed to load data', error);
@@ -253,67 +261,67 @@ const Production = () => {
                     <div className="p-8 text-center text-brand-gray">No hay producción registrada.</div>
                 ) : (
                     <>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left min-w-[600px]">
-                            <thead className="bg-gray-50 text-gray-500 border-b">
-                                <tr>
-                                    <th className="px-4 md:px-6 py-3 whitespace-nowrap">Fecha</th>
-                                    <th className="px-4 md:px-6 py-3 whitespace-nowrap">Producto</th>
-                                    <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Cantidad</th>
-                                    <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Costo Unitario</th>
-                                    <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Costo Total</th>
-                                    <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
-                                {production.map((item) => (
-                                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-4 md:px-6 py-3 text-brand-gray whitespace-nowrap">
-                                            {formatLocalDate(item.date)}
-                                        </td>
-                                        <td className="px-4 md:px-6 py-3 font-medium text-brand-dark">{item.product_name}</td>
-                                        <td className="px-4 md:px-6 py-3 text-right font-medium">{item.quantity}</td>
-                                        <td className="px-4 md:px-6 py-3 text-right text-brand-gray whitespace-nowrap">
-                                            ${Number(item.unit_cost).toLocaleString()}
-                                        </td>
-                                        <td className="px-4 md:px-6 py-3 text-right font-bold text-brand-dark whitespace-nowrap">
-                                            ${(Number(item.quantity) * Number(item.unit_cost)).toLocaleString()}
-                                        </td>
-                                        <td className="px-4 md:px-6 py-3 text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <button
-                                                    onClick={() => handleEdit(item)}
-                                                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                    title="Editar"
-                                                >
-                                                    <Pencil size={18} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeleteClick(item)}
-                                                    className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                                                    title="Eliminar"
-                                                >
-                                                    <Trash2 size={18} />
-                                                </button>
-                                            </div>
-                                        </td>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm text-left min-w-[600px]">
+                                <thead className="bg-gray-50 text-gray-500 border-b">
+                                    <tr>
+                                        <th className="px-4 md:px-6 py-3 whitespace-nowrap">Fecha</th>
+                                        <th className="px-4 md:px-6 py-3 whitespace-nowrap">Producto</th>
+                                        <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Cantidad</th>
+                                        <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Costo Unitario</th>
+                                        <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Costo Total</th>
+                                        <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Acciones</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                    {production.length < productionTotal && (
-                        <div className="p-4 text-center">
-                            <button
-                                className="px-6 py-2 rounded bg-brand-gold text-white font-medium hover:bg-opacity-90 transition-colors"
-                                onClick={() => loadMoreProduction(productionOffset)}
-                                disabled={loadingMore}
-                            >
-                                {loadingMore ? 'Cargando...' : 'Cargar más'}
-                            </button>
-                            <div className="text-xs text-gray-400 mt-2">Mostrando {production.length} de {productionTotal}</div>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {production.map((item) => (
+                                        <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                                            <td className="px-4 md:px-6 py-3 text-brand-gray whitespace-nowrap">
+                                                {formatLocalDate(item.date)}
+                                            </td>
+                                            <td className="px-4 md:px-6 py-3 font-medium text-brand-dark">{item.product_name}</td>
+                                            <td className="px-4 md:px-6 py-3 text-right font-medium">{item.quantity}</td>
+                                            <td className="px-4 md:px-6 py-3 text-right text-brand-gray whitespace-nowrap">
+                                                ${Number(item.unit_cost).toLocaleString()}
+                                            </td>
+                                            <td className="px-4 md:px-6 py-3 text-right font-bold text-brand-dark whitespace-nowrap">
+                                                ${(Number(item.quantity) * Number(item.unit_cost)).toLocaleString()}
+                                            </td>
+                                            <td className="px-4 md:px-6 py-3 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <button
+                                                        onClick={() => handleEdit(item)}
+                                                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                        title="Editar"
+                                                    >
+                                                        <Pencil size={18} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteClick(item)}
+                                                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                                                        title="Eliminar"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
-                    )}
+                        {production.length < productionTotal && (
+                            <div className="p-4 text-center">
+                                <button
+                                    className="px-6 py-2 rounded bg-brand-gold text-white font-medium hover:bg-opacity-90 transition-colors"
+                                    onClick={() => loadMoreProduction(productionOffset)}
+                                    disabled={loadingMore}
+                                >
+                                    {loadingMore ? 'Cargando...' : 'Cargar más'}
+                                </button>
+                                <div className="text-xs text-gray-400 mt-2">Mostrando {production.length} de {productionTotal}</div>
+                            </div>
+                        )}
                     </>
                 )}
             </div>

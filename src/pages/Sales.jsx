@@ -5,6 +5,7 @@ import { useToast } from '../contexts/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
 import { getTodayLocalDate, formatLocalDate, toInputDateFormat } from '../lib/dateUtils';
 import useVentas from '../hooks/useVentas';
+import useProductos from '../hooks/useProductos';
 import { useQueryClient } from '@tanstack/react-query';
 import TableSkeleton from '../components/TableSkeleton.jsx';
 
@@ -32,6 +33,7 @@ const Sales = () => {
 
     const queryClient = useQueryClient();
     const { data: ventasData, isLoading: ventasLoading, refetch: refetchVentas } = useVentas({ limit: SALES_LIMIT });
+    const { data: productosData } = useProductos();
 
     useEffect(() => {
         if (ventasData) {
@@ -42,12 +44,18 @@ const Sales = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ventasData]);
 
+    useEffect(() => {
+        if (productosData) {
+            setProducts(Array.isArray(productosData) ? productosData : []);
+        }
+    }, [productosData]);
+
     const loadMoreSales = async (cursor = null, replace = false) => {
         try {
             if (replace) {
                 // force refetch the main query
                 await refetchVentas();
-                api.getProducts().then(productsData => { setProducts(Array.isArray(productsData) ? productsData : []); }).catch(()=>{});
+                api.getProducts().then(productsData => { setProducts(Array.isArray(productsData) ? productsData : []); }).catch(() => { });
                 return;
             }
             setLoadingMore(true);
@@ -78,7 +86,7 @@ const Sales = () => {
                         nextCursor: salesResp.nextCursor || null
                     };
                 });
-            } catch (e) {}
+            } catch (e) { }
 
         } catch (error) {
             console.error('Failed to load data', error);
@@ -256,67 +264,67 @@ const Sales = () => {
                     <div className="p-8 text-center text-brand-gray">No hay ventas registradas hoy.</div>
                 ) : (
                     <>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left min-w-[600px]">
-                            <thead className="bg-gray-50 text-gray-500 border-b">
-                                <tr>
-                                    <th className="px-4 md:px-6 py-3 whitespace-nowrap">Fecha</th>
-                                    <th className="px-4 md:px-6 py-3 whitespace-nowrap">Producto</th>
-                                    <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Cantidad</th>
-                                    <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Precio Unit.</th>
-                                    <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Total Venta</th>
-                                    <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
-                                {sales.map((item) => (
-                                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-4 md:px-6 py-3 text-brand-gray whitespace-nowrap">
-                                            {formatLocalDate(item.date)}
-                                        </td>
-                                        <td className="px-4 md:px-6 py-3 font-medium text-brand-dark">{item.product_name}</td>
-                                        <td className="px-4 md:px-6 py-3 text-right font-medium">{item.quantity}</td>
-                                        <td className="px-4 md:px-6 py-3 text-right text-brand-gray whitespace-nowrap">
-                                            ${Number(item.unit_price).toLocaleString()}
-                                        </td>
-                                        <td className="px-4 md:px-6 py-3 text-right font-bold text-status-success whitespace-nowrap">
-                                            ${(Number(item.quantity) * Number(item.unit_price)).toLocaleString()}
-                                        </td>
-                                        <td className="px-4 md:px-6 py-3 text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <button
-                                                    onClick={() => handleEdit(item)}
-                                                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                    title="Editar"
-                                                >
-                                                    <Pencil size={18} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeleteClick(item)}
-                                                    className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                                                    title="Eliminar"
-                                                >
-                                                    <Trash2 size={18} />
-                                                </button>
-                                            </div>
-                                        </td>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm text-left min-w-[600px]">
+                                <thead className="bg-gray-50 text-gray-500 border-b">
+                                    <tr>
+                                        <th className="px-4 md:px-6 py-3 whitespace-nowrap">Fecha</th>
+                                        <th className="px-4 md:px-6 py-3 whitespace-nowrap">Producto</th>
+                                        <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Cantidad</th>
+                                        <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Precio Unit.</th>
+                                        <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Total Venta</th>
+                                        <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Acciones</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                    {sales.length < salesTotal && (
-                        <div className="p-4 text-center">
-                            <button
-                                className="px-6 py-2 rounded bg-brand-gold text-white font-medium hover:bg-opacity-90 transition-colors"
-                                onClick={() => loadMoreSales(salesOffset)}
-                                disabled={loadingMore}
-                            >
-                                {loadingMore ? 'Cargando...' : 'Cargar más'}
-                            </button>
-                            <div className="text-xs text-gray-400 mt-2">Mostrando {sales.length} de {salesTotal}</div>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {sales.map((item) => (
+                                        <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                                            <td className="px-4 md:px-6 py-3 text-brand-gray whitespace-nowrap">
+                                                {formatLocalDate(item.date)}
+                                            </td>
+                                            <td className="px-4 md:px-6 py-3 font-medium text-brand-dark">{item.product_name}</td>
+                                            <td className="px-4 md:px-6 py-3 text-right font-medium">{item.quantity}</td>
+                                            <td className="px-4 md:px-6 py-3 text-right text-brand-gray whitespace-nowrap">
+                                                ${Number(item.unit_price).toLocaleString()}
+                                            </td>
+                                            <td className="px-4 md:px-6 py-3 text-right font-bold text-status-success whitespace-nowrap">
+                                                ${(Number(item.quantity) * Number(item.unit_price)).toLocaleString()}
+                                            </td>
+                                            <td className="px-4 md:px-6 py-3 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <button
+                                                        onClick={() => handleEdit(item)}
+                                                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                        title="Editar"
+                                                    >
+                                                        <Pencil size={18} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteClick(item)}
+                                                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                                                        title="Eliminar"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
-                    )}
+                        {sales.length < salesTotal && (
+                            <div className="p-4 text-center">
+                                <button
+                                    className="px-6 py-2 rounded bg-brand-gold text-white font-medium hover:bg-opacity-90 transition-colors"
+                                    onClick={() => loadMoreSales(salesOffset)}
+                                    disabled={loadingMore}
+                                >
+                                    {loadingMore ? 'Cargando...' : 'Cargar más'}
+                                </button>
+                                <div className="text-xs text-gray-400 mt-2">Mostrando {sales.length} de {salesTotal}</div>
+                            </div>
+                        )}
                     </>
                 )}
             </div>
