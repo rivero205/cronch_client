@@ -68,7 +68,7 @@ const Expenses = () => {
                         nextCursor: resp.nextCursor || null
                     };
                 });
-            } catch (e) {}
+            } catch (e) { }
 
         } catch (error) {
             console.error('Failed to load expenses', error);
@@ -135,7 +135,7 @@ const Expenses = () => {
             }
 
             resetForm();
-            setExpensesOffset(0);
+
             await loadMoreExpenses(0, true);
         } catch (error) {
             console.error('Failed to save expense', error);
@@ -227,61 +227,61 @@ const Expenses = () => {
                     <div className="p-8 text-center text-brand-gray">No hay gastos registrados.</div>
                 ) : (
                     <>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left min-w-[600px]">
-                            <thead className="bg-gray-50 text-gray-500 border-b">
-                                <tr>
-                                    <th className="px-4 md:px-6 py-3 whitespace-nowrap">Fecha</th>
-                                    <th className="px-4 md:px-6 py-3 whitespace-nowrap">Descripción</th>
-                                    <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Costo</th>
-                                    <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
-                                {expenses.map((expense) => (
-                                    <tr key={expense.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-4 md:px-6 py-3 text-brand-gray whitespace-nowrap">
-                                            {formatLocalDate(expense.date)}
-                                        </td>
-                                        <td className="px-4 md:px-6 py-3 font-medium text-brand-dark">{expense.description}</td>
-                                        <td className="px-4 md:px-6 py-3 text-right font-bold text-brand-dark whitespace-nowrap">
-                                            ${Number(expense.amount).toLocaleString()}
-                                        </td>
-                                        <td className="px-4 md:px-6 py-3 text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <button
-                                                    onClick={() => handleEdit(expense)}
-                                                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                    title="Editar"
-                                                >
-                                                    <Pencil size={18} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeleteClick(expense)}
-                                                    className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                                                    title="Eliminar"
-                                                >
-                                                    <Trash2 size={18} />
-                                                </button>
-                                            </div>
-                                        </td>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm text-left min-w-[600px]">
+                                <thead className="bg-gray-50 text-gray-500 border-b">
+                                    <tr>
+                                        <th className="px-4 md:px-6 py-3 whitespace-nowrap">Fecha</th>
+                                        <th className="px-4 md:px-6 py-3 whitespace-nowrap">Descripción</th>
+                                        <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Costo</th>
+                                        <th className="px-4 md:px-6 py-3 text-right whitespace-nowrap">Acciones</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                    {expenses.length < expensesTotal && (
-                        <div className="p-4 text-center">
-                            <button
-                                className="px-6 py-2 rounded bg-brand-gold text-white font-medium hover:bg-opacity-90 transition-colors"
-                                onClick={() => loadMoreExpenses(expensesOffset)}
-                                disabled={loadingMore}
-                            >
-                                {loadingMore ? 'Cargando...' : 'Cargar más'}
-                            </button>
-                            <div className="text-xs text-gray-400 mt-2">Mostrando {expenses.length} de {expensesTotal}</div>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {expenses.map((expense) => (
+                                        <tr key={expense.id} className="hover:bg-gray-50 transition-colors">
+                                            <td className="px-4 md:px-6 py-3 text-brand-gray whitespace-nowrap">
+                                                {formatLocalDate(expense.date)}
+                                            </td>
+                                            <td className="px-4 md:px-6 py-3 font-medium text-brand-dark">{expense.description}</td>
+                                            <td className="px-4 md:px-6 py-3 text-right font-bold text-brand-dark whitespace-nowrap">
+                                                ${Number(expense.amount).toLocaleString()}
+                                            </td>
+                                            <td className="px-4 md:px-6 py-3 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <button
+                                                        onClick={() => handleEdit(expense)}
+                                                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                        title="Editar"
+                                                    >
+                                                        <Pencil size={18} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteClick(expense)}
+                                                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                                                        title="Eliminar"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
-                    )}
+                        {expenses.length < expensesTotal && (
+                            <div className="p-4 text-center">
+                                <button
+                                    className="px-6 py-2 rounded bg-brand-gold text-white font-medium hover:bg-opacity-90 transition-colors"
+                                    onClick={() => loadMoreExpenses(expensesNextCursor)}
+                                    disabled={loadingMore}
+                                >
+                                    {loadingMore ? 'Cargando...' : 'Cargar más'}
+                                </button>
+                                <div className="text-xs text-gray-400 mt-2">Mostrando {expenses.length} de {expensesTotal}</div>
+                            </div>
+                        )}
                     </>
                 )}
             </div>

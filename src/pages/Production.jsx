@@ -153,7 +153,7 @@ const Production = () => {
             }
 
             resetForm();
-            setProductionOffset(0);
+
             await loadMoreProduction(0, true);
         } catch (error) {
             console.error('Failed to save production', error);
@@ -314,7 +314,7 @@ const Production = () => {
                             <div className="p-4 text-center">
                                 <button
                                     className="px-6 py-2 rounded bg-brand-gold text-white font-medium hover:bg-opacity-90 transition-colors"
-                                    onClick={() => loadMoreProduction(productionOffset)}
+                                    onClick={() => loadMoreProduction(productionNextCursor)}
                                     disabled={loadingMore}
                                 >
                                     {loadingMore ? 'Cargando...' : 'Cargar más'}
